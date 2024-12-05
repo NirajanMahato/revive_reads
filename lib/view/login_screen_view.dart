@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:revive_reads/constants.dart';
 import 'package:revive_reads/common/widgets/custom_elevated_button.dart';
 import 'package:revive_reads/common/widgets/custom_text_field.dart';
+import 'package:revive_reads/constants.dart';
 
 class LoginScreenView extends StatelessWidget {
   const LoginScreenView({super.key});
@@ -36,7 +36,6 @@ class LoginScreenView extends StatelessWidget {
                   const CustomTextField(
                     validator: ValidateLogin.emailValidate,
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.email,
                     hintText: 'Your Email',
                   ),
                   const SizedBox(
@@ -55,7 +54,6 @@ class LoginScreenView extends StatelessWidget {
                   const CustomTextField(
                     validator: ValidateLogin.passwordValidate,
                     keyboardType: TextInputType.visiblePassword,
-                    prefixIcon: Icons.lock,
                     hintText: 'Your Password',
                   ),
                   const SizedBox(
