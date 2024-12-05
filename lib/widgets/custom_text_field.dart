@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:revive_reads/constants.dart';
 
 class CustomTextField extends StatelessWidget {
   final String? Function(String?) validator;
@@ -20,9 +19,9 @@ class CustomTextField extends StatelessWidget {
       keyboardType: keyboardType,
       style: const TextStyle(fontSize: 19.0, color: Colors.black),
       decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
           filled: true,
-          fillColor: const Color.fromARGB(255, 241, 246, 251),
+          fillColor: const Color.fromARGB(255, 235, 240, 244),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: Colors.transparent),
@@ -32,14 +31,6 @@ class CustomTextField extends StatelessWidget {
             borderSide: const BorderSide(color: Colors.black),
           ),
           border: InputBorder.none,
-          prefixIcon: Padding(
-            padding: const EdgeInsets.only(left: 25.0, right: 10.0),
-            child: Icon(
-              prefixIcon,
-              color: KPrimaryColor,
-              size: 25,
-            ),
-          ),
           hintText: hintText,
           hintStyle: const TextStyle(fontSize: 18.0, color: Colors.black45),
         ),
