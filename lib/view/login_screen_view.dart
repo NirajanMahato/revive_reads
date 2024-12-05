@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:revive_reads/constants.dart';
-import 'package:revive_reads/widgets/custom_elevated_button.dart';
-import 'package:revive_reads/widgets/custom_text_field.dart';
+import 'package:revive_reads/common/widgets/custom_elevated_button.dart';
+import 'package:revive_reads/common/widgets/custom_text_field.dart';
 
 class LoginScreenView extends StatelessWidget {
   const LoginScreenView({super.key});
