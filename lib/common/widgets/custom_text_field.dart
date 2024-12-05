@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 class CustomTextField extends StatelessWidget {
   final String? Function(String?) validator;
   final TextInputType keyboardType;
-  final IconData prefixIcon;
   final String hintText;
 
   const CustomTextField(
       {required this.validator,
       required this.keyboardType,
-      required this.prefixIcon,
       required this.hintText});
 
   @override
