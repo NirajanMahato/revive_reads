@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:revive_reads/view/forgot_password_view.dart';
 import 'package:revive_reads/view/login_screen_view.dart';
 import 'package:revive_reads/view/register_screen_view.dart';
 import 'package:revive_reads/view/splash_screen_view.dart';
@@ -18,8 +19,9 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreenView(),
-        '/loign': (context) => const LoginScreenView(),
+        '/login': (context) => const LoginScreenView(),
         '/register': (context) => const RegisterScreenView(),
+        '/forget-password': (context) => const ForgotPasswordView(),
       },
     );
   }

@@ -21,11 +21,11 @@ class CustomTextField extends StatelessWidget {
           filled: true,
           fillColor: const Color.fromARGB(255, 235, 240, 244),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(15),
             borderSide: const BorderSide(color: Colors.transparent),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(15),
             borderSide: const BorderSide(color: Colors.black),
           ),
           border: InputBorder.none,
