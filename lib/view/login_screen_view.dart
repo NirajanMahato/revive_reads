@@ -81,7 +81,7 @@ class LoginScreenView extends StatelessWidget {
                     onPressed: () {},
                     width: double.infinity,
                     textColor: Colors.white,
-                    verticalPadding: 21.0,
+                    verticalPadding: 18.0,
                     fontSize: 18.0,
                   ),
                   const SizedBox(
@@ -98,7 +98,7 @@ class LoginScreenView extends StatelessWidget {
                     alignment: Alignment.center,
                     child: InkWell(
                       onTap: () {
-                          Navigator.of(context).pushNamed("/register");
+                        Navigator.of(context).pushNamed("/register");
                       },
                       child: const Text(
                         "Sign up",
