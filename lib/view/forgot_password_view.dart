@@ -68,7 +68,7 @@ class ForgotPasswordView extends StatelessWidget {
                     onPressed: () {},
                     width: double.infinity,
                     textColor: Colors.white,
-                    verticalPadding: 21.0,
+                    verticalPadding: 18.0,
                     fontSize: 18.0,
                   ),
                   const SizedBox(

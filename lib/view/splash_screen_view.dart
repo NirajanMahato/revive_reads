@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:revive_reads/view/register_screen_view.dart';
+import 'package:revive_reads/view/login_screen_view.dart';
 
 class SplashScreenView extends StatefulWidget {
   const SplashScreenView({super.key});
@@ -17,8 +17,8 @@ class _SplashScreenViewState extends State<SplashScreenView> {
 
   _navigatetohome() async {
     await Future.delayed(Duration(milliseconds: 2000), () {});
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const RegisterScreenView()));
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => const LoginScreenView()));
   }
 
   @override
@@ -29,7 +29,7 @@ class _SplashScreenViewState extends State<SplashScreenView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              height: 140,
+              height: 110,
               child: Image.asset('assets/logo/Logo1.png'),
             ),
             const SizedBox(
