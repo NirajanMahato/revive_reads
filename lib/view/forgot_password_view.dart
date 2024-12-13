@@ -3,8 +3,15 @@ import 'package:revive_reads/common/widgets/custom_elevated_button.dart';
 import 'package:revive_reads/common/widgets/custom_text_field.dart';
 import 'package:revive_reads/constants.dart';
 
-class ForgotPasswordView extends StatelessWidget {
+class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
+
+  @override
+  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
+}
+
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
+  TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +62,8 @@ class ForgotPasswordView extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       )),
                   const SizedBox(height: 6),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _passwordController,
                     validator: ValidateLogin.emailValidate,
                     keyboardType: TextInputType.emailAddress,
                     hintText: 'Your Email',

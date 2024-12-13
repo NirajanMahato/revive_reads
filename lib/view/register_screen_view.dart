@@ -3,8 +3,46 @@ import 'package:revive_reads/common/widgets/custom_elevated_button.dart';
 import 'package:revive_reads/common/widgets/custom_text_field.dart';
 import 'package:revive_reads/constants.dart';
 
-class RegisterScreenView extends StatelessWidget {
+class RegisterScreenView extends StatefulWidget {
   const RegisterScreenView({super.key});
+
+  @override
+  State<RegisterScreenView> createState() => _RegisterScreenViewState();
+}
+
+class _RegisterScreenViewState extends State<RegisterScreenView> {
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  // New function to handle sign-up logic
+  void _handleSignUp() {
+    // Check if the form fields are filled
+    if (_nameController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
+      // Show the success snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration Completed'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Navigate to the login screen after a delay
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.of(context).pushReplacementNamed("/login");
+      });
+    } else {
+      // Show an error snackbar if fields are not filled
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +71,8 @@ class RegisterScreenView extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       )),
                   const SizedBox(height: 6),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _nameController,
                     validator: ValidateLogin.fullNameValidate,
                     keyboardType: TextInputType.name,
                     hintText: 'Your Full Name',
@@ -51,7 +90,8 @@ class RegisterScreenView extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       )),
                   const SizedBox(height: 6),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _emailController,
                     validator: ValidateLogin.emailValidate,
                     keyboardType: TextInputType.emailAddress,
                     hintText: 'Your Email',
@@ -69,7 +109,8 @@ class RegisterScreenView extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       )),
                   const SizedBox(height: 6),
-                  const CustomTextField(
+                  CustomTextField(
+                    controller: _passwordController,
                     validator: ValidateLogin.passwordValidate,
                     keyboardType: TextInputType.visiblePassword,
                     hintText: 'Your Password',
@@ -79,7 +120,7 @@ class RegisterScreenView extends StatelessWidget {
                   ),
                   CustomElevatedButton(
                     text: "Sign Up",
-                    onPressed: () {},
+                    onPressed: _handleSignUp,
                     width: double.infinity,
                     textColor: Colors.white,
                     verticalPadding: 18.0,
