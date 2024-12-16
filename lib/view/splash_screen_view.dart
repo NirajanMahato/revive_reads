@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:revive_reads/view/onboarding_screen_1.dart';
+import 'package:revive_reads/view/onboarding_screen_view.dart';
 
 class SplashScreenView extends StatefulWidget {
   const SplashScreenView({super.key});
@@ -18,7 +18,7 @@ class _SplashScreenViewState extends State<SplashScreenView> {
   _navigatetohome() async {
     await Future.delayed(Duration(milliseconds: 2000), () {});
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen1()));
+        MaterialPageRoute(builder: (context) => const OnboardingScreen()));
   }
 
   @override

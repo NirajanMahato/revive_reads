@@ -46,11 +46,22 @@ class _LoginScreenViewState extends State<LoginScreenView> {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/logo/Logo2.png',
-                    height: 190,
-                    width: 190,
+                    'assets/images/login.png',
+                    height: 330,
+                    width: 330,
                   ),
-                  const SizedBox(height: 10),
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                            fontSize: 33.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900),
+                      )),
+                  const SizedBox(
+                    height: 30,
+                  ),
                   const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(

@@ -56,11 +56,22 @@ class _RegisterScreenViewState extends State<RegisterScreenView> {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/logo/Logo2.png',
-                    height: 190,
-                    width: 190,
+                    'assets/images/register.png',
+                    height: 290,
+                    width: 290,
                   ),
-                  const SizedBox(height: 10),
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Register',
+                        style: TextStyle(
+                            fontSize: 33.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900),
+                      )),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
