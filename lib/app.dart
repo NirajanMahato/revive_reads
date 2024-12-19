@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:revive_reads/core/app_theme/app_theme.dart';
 import 'package:revive_reads/view/forgot_password_view.dart';
 import 'package:revive_reads/view/bottom_navigation_view.dart';
 import 'package:revive_reads/view/login_screen_view.dart';
@@ -13,10 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Poppins',
-      ),
+      theme: getApplicationTheme(),
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreenView(),

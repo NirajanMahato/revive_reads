@@ -16,13 +16,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     const OnboardingPage(
       imagePath: 'assets/images/onboarding1.png',
       title: "Discover Amazing Books",
-      description: "Explore a wide variety of books to buy and sell at your convenience.",
+      description:
+          "Explore a wide variety of books to buy and sell at your convenience.",
     ),
     // Second Onboarding Page
     const OnboardingPage(
       imagePath: 'assets/images/onboarding2.png',
       title: "Easy and Secure Transactions",
-      description: "Buy and sell books with confidence through a secure platform.",
+      description:
+          "Buy and sell books with confidence through a secure platform.",
     ),
     // Third Onboarding Page
     const OnboardingPage(
@@ -34,7 +36,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _onNext() {
     if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      _pageController.nextPage(
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
     } else {
       Navigator.pushNamed(context, '/login');
     }
@@ -94,10 +97,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 12),
                   ),
                   onPressed: _onNext,
-                  child: Text(_currentPage == _pages.length - 1 ? "Get Started" : "Next"),
+                  child: Text(_currentPage == _pages.length - 1
+                      ? "Get Started"
+                      : "Next"),
                 ),
               ],
             ),

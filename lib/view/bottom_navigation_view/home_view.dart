@@ -16,8 +16,12 @@ class HomeView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Image.asset(
+                    'assets/logo/Logo2.png',
+                    height: 40,
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: IconButton(
@@ -46,7 +50,7 @@ class HomeView extends StatelessWidget {
                     ),
                   ),
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: const Color(0xFFF4F6F8),
                   contentPadding: const EdgeInsets.symmetric(vertical: 20),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(35),
@@ -93,9 +97,9 @@ class HomeView extends StatelessWidget {
                 child: Row(
                   children: [
                     _buildRecommendedItem(
-                        "The Great Gatsby", "assets/images/book1.jpg"),
+                        "It Starts With Us", "assets/images/book1.jpg"),
                     _buildRecommendedItem(
-                        "To Kill a Mockingbird", "assets/images/book2.jpg"),
+                        "Gitanjali", "assets/images/book2.jpg"),
                   ],
                 ),
               ),
@@ -110,11 +114,11 @@ class HomeView extends StatelessWidget {
               // 2 Columns of recent listings
               GridView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+                  mainAxisSpacing: 70,
                 ),
                 itemCount: 4, // Example item count
                 itemBuilder: (context, index) {
@@ -137,12 +141,15 @@ class HomeView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey), // Grey border
+        border: Border.all(color: const Color(0xFFdcdfe6)), // Grey border
         borderRadius: BorderRadius.circular(25),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          fontSize: 16,
+          fontFamily: 'Poppins Medium',
+        ),
       ),
     );
   }
@@ -179,23 +186,26 @@ class HomeView extends StatelessWidget {
   // Function to create a recent listing item
   Widget _buildListingItem(String title, String imagePath) {
     return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(12),
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      width: 170, // Set width for each book
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            imagePath,
-            width: 150,
-            height: 150,
-            fit: BoxFit.cover,
+          // Apply ClipRRect to add border radius on the image
+          ClipRRect(
+            borderRadius:
+                BorderRadius.circular(12), // Border radius for the image
+            child: Image.asset(
+              imagePath,
+              width: 170,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12), // Add some space between image and title
           Text(
             title,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],
       ),

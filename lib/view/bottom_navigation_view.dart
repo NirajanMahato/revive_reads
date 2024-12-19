@@ -18,7 +18,6 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   final List<Widget> lstBottomScreen = [
     const HomeView(),
     const ChatsView(),
-    const SellView(),
     const MyAdsView(),
     const AccountView(),
   ];
@@ -31,12 +30,9 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
+
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Bottom Navigation View"),
-      //   centerTitle: true,
-      //   backgroundColor: Colors.grey,
-      // ),
       body: SafeArea(child: lstBottomScreen[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -74,16 +70,20 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _selectedIndex = 2; // Navigate to the SellView when FAB is pressed
-          });
-        },
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white),
-        shape: const CircleBorder(),
-      ),
+      floatingActionButton: isKeyboardVisible
+          ? null // Hide FAB when the keyboard is visible
+          : FloatingActionButton(
+              onPressed: () {
+                // Push to the SellView as a new page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SellView()),
+                );
+              },
+              backgroundColor: Colors.black,
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:revive_reads/common/widgets/custom_elevated_button.dart';
-import 'package:revive_reads/common/widgets/custom_text_field.dart';
 import 'package:revive_reads/constants.dart';
+import 'package:revive_reads/core/common/widgets/custom_elevated_button.dart';
+import 'package:revive_reads/core/common/widgets/custom_text_field.dart';
 
 class LoginScreenView extends StatefulWidget {
   const LoginScreenView({super.key});
@@ -11,8 +11,8 @@ class LoginScreenView extends StatefulWidget {
 }
 
 class _LoginScreenViewState extends State<LoginScreenView> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   // Dummy credentials for login validation
   final String dummyEmail = "nirajan@gmail.com";
