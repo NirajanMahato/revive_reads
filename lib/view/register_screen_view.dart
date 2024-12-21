@@ -47,19 +47,39 @@ class _RegisterScreenViewState extends State<RegisterScreenView> {
   @override
   Widget build(BuildContext context) {
     return Form(
-        child: Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: SingleChildScrollView(
+      child: Scaffold(
+          body: SafeArea(
+              child: Stack(
+        children: [
+          const SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          Positioned(
+            child: SizedBox(
+              width: double.infinity,
+              height: 240,
+              child: Image.asset(
+                'assets/images/register.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 230,
+            left: 0,
             child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              decoration: const BoxDecoration(
+                  color: Color.fromARGB(178, 204, 209, 224),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(45),
+                    topRight: Radius.circular(45),
+                  )),
               child: Column(
                 children: [
-                  Image.asset(
-                    'assets/images/register.png',
-                    height: 290,
-                    width: 290,
-                  ),
                   const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -162,10 +182,10 @@ class _RegisterScreenViewState extends State<RegisterScreenView> {
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    ));
+          )
+        ],
+      ))),
+    );
   }
 }
 

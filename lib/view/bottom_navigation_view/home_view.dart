@@ -123,8 +123,8 @@ class HomeView extends StatelessWidget {
                 itemCount: 4, // Example item count
                 itemBuilder: (context, index) {
                   return _buildListingItem(
-                    "Book ${index + 1}",
-                    "assets/images/book1.jpg",
+                    "Leo Tolstoy ${index + 1}",
+                    "assets/images/book4.jpg",
                   );
                 },
               ),
@@ -198,7 +198,7 @@ class HomeView extends StatelessWidget {
             child: Image.asset(
               imagePath,
               width: 170,
-              height: 200,
+              height: 150,
               fit: BoxFit.cover,
             ),
           ),
