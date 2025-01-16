@@ -21,6 +21,19 @@ class UserLocalRepository implements IUserRepository {
   }
 
   @override
+  Future<Either<Failure, String>> loginUser(
+    String email,
+    String password,
+  ) async{
+    try {
+      final token = await _userLocalDataSource.loginUser(email, password);
+      return Right(token);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> deleteUser(String id) async {
     try {
       await _userLocalDataSource.deleteUser(id);
@@ -31,8 +44,8 @@ class UserLocalRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, List<UserEntity>>> getAllStudents() async{
-        try {
+  Future<Either<Failure, List<UserEntity>>> getAllUsers() async {
+    try {
       final users = await _userLocalDataSource.getAllUsers();
       return Right(users);
     } catch (e) {

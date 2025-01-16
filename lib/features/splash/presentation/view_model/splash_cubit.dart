@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:revive_reads/features/auth/presentation/view/register_view.dart';
-import 'package:revive_reads/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:revive_reads/features/onBoarding/presentation/view/onboarding_screen_view.dart';
+import 'package:revive_reads/features/onBoarding/presentation/view_model/onboarding_cubit.dart';
 
 class SplashCubit extends Cubit<void> {
-  SplashCubit(this._registerBloc) : super(null);
+  SplashCubit(this._onboardingCubit) : super(null);
 
-  final RegisterBloc _registerBloc;
+  final OnboardingCubit _onboardingCubit;
 
   Future<void> init(BuildContext context) async {
     // Simulate a 2-second delay
@@ -17,8 +17,8 @@ class SplashCubit extends Cubit<void> {
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider.value(
-              value: _registerBloc,
-              child: const RegisterView(),
+              value: _onboardingCubit,
+              child: const OnboardingScreen(),
             ),
           ),
         );
