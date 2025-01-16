@@ -18,6 +18,17 @@ class UserLocalDataSource implements IUserDataSource {
       throw Exception(e);
     }
   }
+    
+  @override
+  Future<String> loginUser(String email, String password)async {
+    try {
+      await _hiveService.login(email,password);
+      return Future.value("Success");
+    } catch (e) {
+      return Future.error(e);
+      
+    }
+  }
 
   @override
   Future<void> deleteUser(String id) async {

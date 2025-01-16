@@ -3,6 +3,7 @@ import 'package:revive_reads/core/network/hive_service.dart';
 import 'package:revive_reads/features/auth/data/data_source/local_datasource/local_datasource.dart';
 import 'package:revive_reads/features/auth/data/repositories/user_local_repository.dart';
 import 'package:revive_reads/features/auth/domain/use_case/create_user_usecase.dart';
+import 'package:revive_reads/features/auth/domain/use_case/login_usecase.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
@@ -14,9 +15,10 @@ final getIt = GetIt.instance;
 Future<void> initDependencies() async {
   await _initHiveService();
 
-  await _initRegisterDependencies();
   await _initHomeDependencies();
+  await _initRegisterDependencies();
   await _initLoginDependencies();
+
   await _initOnBoardingScreenDependencies();
   await _initSplashScreenDependencies();
 }
@@ -48,16 +50,7 @@ _initRegisterDependencies() async {
 
 _initOnBoardingScreenDependencies() async {
   getIt.registerFactory(
-    () => OnboardingCubit(),
-  );
-}
-
-_initLoginDependencies() async {
-  getIt.registerFactory<LoginBloc>(
-    () => LoginBloc(
-      registerBloc: getIt<RegisterBloc>(),
-      homeCubit: getIt<HomeCubit>(),
-    ),
+    () => OnboardingCubit(getIt<LoginBloc>()),
   );
 }
 
@@ -67,8 +60,24 @@ _initHomeDependencies() async {
   );
 }
 
+_initLoginDependencies() async {
+  getIt.registerLazySingleton<LoginUsecase>(
+    () => LoginUsecase(
+      getIt<UserLocalRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<LoginBloc>(
+    () => LoginBloc(
+      registerBloc: getIt<RegisterBloc>(),
+      homeCubit: getIt<HomeCubit>(),
+      loginUsecase: getIt<LoginUsecase>(),
+    ),
+  );
+}
+
 _initSplashScreenDependencies() async {
   getIt.registerFactory(
-    () => SplashCubit(getIt<RegisterBloc>()),
+    () => SplashCubit(getIt<OnboardingCubit>()),
   );
 }

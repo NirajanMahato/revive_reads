@@ -64,8 +64,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             SizedBox(
               width: 290,
               child: OutlinedButton(
-                onPressed: () =>
-                    context.read<OnboardingCubit>().navigateToLogin(context),
+                onPressed: () {
+                  context.read<OnboardingCubit>().navigateToLogin(context);
+                },
                 style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.black45,
                     shape: RoundedRectangleBorder(

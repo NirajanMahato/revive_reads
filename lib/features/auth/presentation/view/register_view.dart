@@ -130,6 +130,7 @@ class _RegisterViewState extends State<RegisterView> {
                       if (_registerViewFormKey.currentState!.validate()) {
                         context.read<RegisterBloc>().add(
                               RegisterUserEvent(
+                                context: context,
                                 fullName: _nameController.text.trim(),
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text.trim(),

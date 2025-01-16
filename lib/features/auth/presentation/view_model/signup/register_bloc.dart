@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revive_reads/core/common/snackbar/my_snackbar.dart';
 import 'package:revive_reads/features/auth/domain/use_case/create_user_usecase.dart';
 
 part 'register_event.dart';
@@ -34,10 +35,13 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           role: "User"),
     );
     newUser.fold(
-        (failure) =>
-            emit(state.copyWith(isLoading: false, error: failure.message)),
-        (users) => emit(state.copyWith(isLoading: false, error: null)));
-    emit(state.copyWith(isLoading: false, isSuccess: true));
+      (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (r) {
+        emit(state.copyWith(isLoading: false, isSuccess: true));
+        showMySnackBar(
+            context: event.context, message: "Registration Successful");
+      },
+    );
   }
 
 // // Handle NavigateLoginScreenEvent
