@@ -83,7 +83,7 @@ _initHomeDependencies() async {
 _initLoginDependencies() async {
   getIt.registerLazySingleton<LoginUsecase>(
     () => LoginUsecase(
-      getIt<UserLocalRepository>(),
+      getIt<UserRemoteRepository>(),
     ),
   );
 
