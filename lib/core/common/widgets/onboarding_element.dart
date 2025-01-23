@@ -10,27 +10,11 @@ class OnboardingElement extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 70, left: 30, right: 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // const Text(
-              //   "Start Your Journey",
-              //   style: TextStyle(fontSize: 36, fontWeight: FontWeight.w300),
-              // ),
-              Padding(
-                padding: const EdgeInsets.only(top: 21.0),
-                child: Text(
-                  subtitle,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ],
-          ),
+        const SizedBox(
+          height: 60,
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 20.0),
+          padding: const EdgeInsets.only(top: 40.0),
           child: SizedBox(
               width: double.infinity,
               height: 400,
@@ -38,7 +22,22 @@ class OnboardingElement extends StatelessWidget {
                 imagePath,
                 fit: BoxFit.fitWidth,
               )),
-        )
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 30, left: 20, right: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 21.0),
+                child: Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 17),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -32,7 +32,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           password: event.password,
           phone: '',
           address: '',
-          role: "User"),
+          role: "user"),
     );
     newUser.fold(
       (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),

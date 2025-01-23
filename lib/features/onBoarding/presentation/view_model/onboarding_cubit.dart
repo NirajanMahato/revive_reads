@@ -10,7 +10,7 @@ class OnboardingCubit extends Cubit<void> {
 
   void navigateToLogin(BuildContext context) {
     if (context.mounted) {
-      Navigator.push(
+      Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider.value(

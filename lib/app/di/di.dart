@@ -1,7 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:revive_reads/core/network/api_service.dart';
 import 'package:revive_reads/core/network/hive_service.dart';
 import 'package:revive_reads/features/auth/data/data_source/local_datasource/local_datasource.dart';
+import 'package:revive_reads/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import 'package:revive_reads/features/auth/data/repositories/user_local_repository.dart';
+import 'package:revive_reads/features/auth/data/repositories/user_remote_repository.dart';
 import 'package:revive_reads/features/auth/domain/use_case/create_user_usecase.dart';
 import 'package:revive_reads/features/auth/domain/use_case/login_usecase.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
@@ -14,6 +18,7 @@ final getIt = GetIt.instance;
 
 Future<void> initDependencies() async {
   await _initHiveService();
+  await _initApiService();
 
   await _initHomeDependencies();
   await _initRegisterDependencies();
@@ -27,18 +32,33 @@ _initHiveService() async {
   getIt.registerLazySingleton<HiveService>(() => HiveService());
 }
 
+_initApiService() {
+  // Remote Data Source
+  getIt.registerLazySingleton<Dio>(
+    () => ApiService(Dio()).dio,
+  );
+}
+
 _initRegisterDependencies() async {
-  // Data Source
+  // Local Data Source
   getIt
       .registerFactory<UserLocalDataSource>(() => UserLocalDataSource(getIt()));
 
-  // Repository
+  // Remote Data Source
+  getIt.registerFactory<UserRemoteDataSource>(
+      () => UserRemoteDataSource(getIt<Dio>()));
+
+  // Local Repository
   getIt.registerLazySingleton<UserLocalRepository>(() =>
       UserLocalRepository(userLocalDataSource: getIt<UserLocalDataSource>()));
 
+  // Remote Repository
+  getIt.registerLazySingleton<UserRemoteRepository>(
+      () => UserRemoteRepository(getIt<UserRemoteDataSource>()));
+
   // Usecases
   getIt.registerLazySingleton<CreateUserUsecase>(
-    () => CreateUserUsecase(userRepository: getIt<UserLocalRepository>()),
+    () => CreateUserUsecase(userRepository: getIt<UserRemoteRepository>()),
   );
 
   getIt.registerFactory<RegisterBloc>(
