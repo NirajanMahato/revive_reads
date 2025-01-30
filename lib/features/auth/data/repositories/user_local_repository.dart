@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:revive_reads/core/error/failure.dart';
 import 'package:revive_reads/features/auth/data/data_source/local_datasource/local_datasource.dart';
@@ -53,5 +55,11 @@ class UserLocalRepository implements IUserRepository {
         LocalDatabaseFailure(message: 'Error getting all users: $e'),
       );
     }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadProfilePicture(File file) {
+    // TODO: implement uploadProfilePicture
+    throw UnimplementedError();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:revive_reads/core/error/failure.dart';
 import 'package:revive_reads/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
@@ -46,17 +48,28 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-Future<Either<Failure, String>> loginUser(String email, String password) async {
-  try {
-    final token = await _userRemoteDatasource.loginUser(email, password);
-    return Right(token);
-  } catch (e) {
-    return Left(
-      ApiFailure(
-        statusCode: 400,
-        message: e.toString(),
-      ),
-    );
+  Future<Either<Failure, String>> loginUser(
+      String email, String password) async {
+    try {
+      final token = await _userRemoteDatasource.loginUser(email, password);
+      return Right(token);
+    } catch (e) {
+      return Left(
+        ApiFailure(
+          statusCode: 400,
+          message: e.toString(),
+        ),
+      );
+    }
   }
-}
+
+  @override
+  Future<Either<Failure, String>> uploadProfilePicture(File file) async {
+    try {
+      final fileName = await _userRemoteDatasource.uploadProfilePicture(file);
+      return Right(fileName);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString(), statusCode: 400));
+    }
+  }
 }

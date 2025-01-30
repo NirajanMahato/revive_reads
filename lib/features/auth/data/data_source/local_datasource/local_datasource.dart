@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:revive_reads/core/network/hive_service.dart';
 import 'package:revive_reads/features/auth/data/data_source/user_data_source.dart';
 import 'package:revive_reads/features/auth/data/model/user_hive_model.dart';
@@ -48,5 +50,11 @@ class UserLocalDataSource implements IUserDataSource {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  @override
+  Future<String> uploadProfilePicture(File file) {
+    // TODO: implement uploadProfilePicture
+    throw UnimplementedError();
   }
 }

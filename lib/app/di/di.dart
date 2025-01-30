@@ -8,6 +8,7 @@ import 'package:revive_reads/features/auth/data/repositories/user_local_reposito
 import 'package:revive_reads/features/auth/data/repositories/user_remote_repository.dart';
 import 'package:revive_reads/features/auth/domain/use_case/create_user_usecase.dart';
 import 'package:revive_reads/features/auth/domain/use_case/login_usecase.dart';
+import 'package:revive_reads/features/auth/domain/use_case/upload_image_usecase.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
@@ -61,9 +62,16 @@ _initRegisterDependencies() async {
     () => CreateUserUsecase(userRepository: getIt<UserRemoteRepository>()),
   );
 
+  getIt.registerLazySingleton<UploadImageUsecase>(
+    () => UploadImageUsecase(
+      getIt<UserRemoteRepository>(),
+    ),
+  );
+
   getIt.registerFactory<RegisterBloc>(
     () => RegisterBloc(
       createUserUsecase: getIt<CreateUserUsecase>(),
+      uploadImageUsecase: getIt<UploadImageUsecase>(),
     ),
   );
 }

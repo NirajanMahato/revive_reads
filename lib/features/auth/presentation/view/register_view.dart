@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:revive_reads/app/constants/color_constants.dart';
 import 'package:revive_reads/core/common/widgets/custom_elevated_button.dart';
 import 'package:revive_reads/core/common/widgets/custom_text_field.dart';
@@ -17,65 +21,151 @@ class _RegisterViewState extends State<RegisterView> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  File? _img;
+
+  // Runtime camera permission from the user
+  checkCameraPermission() async {
+    if (await Permission.camera.request().isRestricted ||
+        await Permission.camera.request().isDenied) {
+      await Permission.camera.request();
+    }
+  }
+
+  Future _browseImage(ImageSource imageSource) async {
+    try {
+      final image = await ImagePicker().pickImage(source: imageSource);
+      if (image != null) {
+        setState(() {
+          _img = File(image.path);
+          // Send image to register bloc
+          context.read<RegisterBloc>().add(
+                LoadImage(file: _img!),
+              );
+        });
+      } else {
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _registerViewFormKey,
       child: Scaffold(
-          body: SafeArea(
-              child: Stack(
-        children: [
-          const SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          Positioned(
-            child: SizedBox(
-              width: double.infinity,
-              height: 240,
-              child: Image.asset(
-                'assets/images/register.png',
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-          Positioned(
-            top: 230,
-            left: 0,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(178, 204, 209, 224),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(45),
-                    topRight: Radius.circular(45),
-                  )),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Register',
-                        style: TextStyle(
-                            fontSize: 33.0,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w900),
-                      )),
-                  const SizedBox(
-                    height: 20,
+                  const SizedBox(height: 20),
+                  // Profile Image Selector
+                  Center(
+                    child: Stack(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            showModalBottomSheet(
+                              backgroundColor: Colors.grey[300],
+                              context: context,
+                              isScrollControlled: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              builder: (context) => Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        checkCameraPermission();
+                                        _browseImage(ImageSource.camera);
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(Icons.camera),
+                                      label: const Text('Camera'),
+                                    ),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        _browseImage(ImageSource.gallery);
+                                        Navigator.pop(context);
+                                      },
+                                      icon: const Icon(Icons.image),
+                                      label: const Text('Gallery'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 200,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey[200],
+                            ),
+                            child: _img != null
+                                ? CircleAvatar(
+                                    backgroundImage: FileImage(_img!),
+                                    radius: 100,
+                                  )
+                                : const CircleAvatar(
+                                    radius: 100,
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 80,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blue,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 25,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Full name',
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: kBlueGreyColor,
-                            fontWeight: FontWeight.w600),
-                      )),
+                  const SizedBox(height: 30),
+                  const Text(
+                    'Register',
+                    style: TextStyle(
+                      fontSize: 33.0,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Full name',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: kBlueGreyColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   CustomTextField(
                     controller: _nameController,
@@ -83,18 +173,15 @@ class _RegisterViewState extends State<RegisterView> {
                     keyboardType: TextInputType.name,
                     hintText: 'Your Full Name',
                   ),
-                  const SizedBox(
-                    height: 20,
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Email',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: kBlueGreyColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Email',
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: kBlueGreyColor,
-                            fontWeight: FontWeight.w600),
-                      )),
                   const SizedBox(height: 6),
                   CustomTextField(
                     controller: _emailController,
@@ -102,18 +189,15 @@ class _RegisterViewState extends State<RegisterView> {
                     keyboardType: TextInputType.emailAddress,
                     hintText: 'Your Email',
                   ),
-                  const SizedBox(
-                    height: 20,
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Password',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: kBlueGreyColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Password',
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: kBlueGreyColor,
-                            fontWeight: FontWeight.w600),
-                      )),
                   const SizedBox(height: 6),
                   CustomTextField(
                     controller: _passwordController,
@@ -121,25 +205,36 @@ class _RegisterViewState extends State<RegisterView> {
                     keyboardType: TextInputType.visiblePassword,
                     hintText: 'Your Password',
                   ),
-                  const SizedBox(
-                    height: 50,
-                  ),
+                  const SizedBox(height: 50),
                   CustomElevatedButton(
                     text: "Sign Up",
                     onPressed: () {
                       if (_registerViewFormKey.currentState!.validate()) {
+                        if (_img == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select a profile picture'),
+                            ),
+                          );
+                          return;
+                        }
+                        final registerState =
+                            context.read<RegisterBloc>().state;
+                        final imageName = registerState.imageName;
                         context.read<RegisterBloc>().add(
                               RegisterUserEvent(
                                 context: context,
                                 fullName: _nameController.text.trim(),
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text.trim(),
+                                avatar: imageName,
                               ),
                             );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Please fill all the feilds')),
+                            content: Text('Please fill all the fields'),
+                          ),
                         );
                       }
                     },
@@ -148,9 +243,7 @@ class _RegisterViewState extends State<RegisterView> {
                     verticalPadding: 18.0,
                     fontSize: 18.0,
                   ),
-                  const SizedBox(
-                    height: 30,
-                  ),
+                  const SizedBox(height: 30),
                   const Align(
                     alignment: Alignment.center,
                     child: Text(
@@ -162,25 +255,20 @@ class _RegisterViewState extends State<RegisterView> {
                     alignment: Alignment.center,
                     child: InkWell(
                       onTap: () {
-                        // context.read<RegisterBloc>().add(
-                        //       NavigateLoginScreenEvent(
-                        //         context: context,
-                        //         destination: const LoginView(),
-                        //       ),
-                        //     );
+                        // Navigate to login
                       },
                       child: const Text(
                         "Sign In",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-          )
-        ],
-      ))),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:revive_reads/app/constants/api_endpoints.dart';
 import 'package:revive_reads/features/auth/data/data_source/user_data_source.dart';
@@ -73,6 +75,36 @@ class UserRemoteDataSource implements IUserDataSource {
       throw Exception(e.message);
     } catch (e) {
       throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<String> uploadProfilePicture(File file) async {
+    try {
+      String fileName = file.path.split('/').last;
+      FormData formData = FormData.fromMap(
+        {
+          'avatar': await MultipartFile.fromFile(
+            file.path,
+            filename: fileName,
+          ),
+        },
+      );
+
+      Response response = await _dio.post(
+        ApiEndpoints.uploadImage,
+        data: formData,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      } else {
+        throw Exception(response.statusMessage);
+      }
+    } on DioException catch (e) {
+      throw Exception(e);
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }

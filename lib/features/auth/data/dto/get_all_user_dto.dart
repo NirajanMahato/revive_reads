@@ -19,6 +19,6 @@ class GetAllUserDTO {
   Map<String, dynamic> toJson() => _$GetAllUserDTOToJson(this);
 
 
-  factory GetAllUserDTO.fromJson(Map<String, dynamic> json) => 
+  factory GetAllUserDTO.fromJson(Map<String, dynamic> json) =>
   _$GetAllUserDTOFromJson(json);
 }
