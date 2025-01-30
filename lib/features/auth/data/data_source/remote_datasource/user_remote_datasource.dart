@@ -58,7 +58,7 @@ class UserRemoteDataSource implements IUserDataSource {
   @override
   Future<String> loginUser(String email, String password) async {
     try {
-      var response = await _dio.post(
+      Response response = await _dio.post(
         ApiEndpoints.login,
         data: {
           'email': email,
@@ -67,7 +67,8 @@ class UserRemoteDataSource implements IUserDataSource {
       );
 
       if (response.statusCode == 200) {
-        return Future.value("Success");
+        final token = response.data['user']['token'] as String;
+        return token;
       } else {
         throw Exception(response.statusMessage);
       }

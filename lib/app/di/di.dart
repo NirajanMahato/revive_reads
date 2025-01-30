@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:revive_reads/app/shared_prefs/token_shared_prefs.dart';
 import 'package:revive_reads/core/network/api_service.dart';
 import 'package:revive_reads/core/network/hive_service.dart';
 import 'package:revive_reads/features/auth/data/data_source/local_datasource/local_datasource.dart';
@@ -14,12 +15,14 @@ import 'package:revive_reads/features/auth/presentation/view_model/signup/regist
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
 import 'package:revive_reads/features/onBoarding/presentation/view_model/onboarding_cubit.dart';
 import 'package:revive_reads/features/splash/presentation/view_model/splash_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> initDependencies() async {
   await _initHiveService();
   await _initApiService();
+  await _initSharedPreferences();
 
   await _initHomeDependencies();
   await _initRegisterDependencies();
@@ -27,6 +30,11 @@ Future<void> initDependencies() async {
 
   await _initOnBoardingScreenDependencies();
   await _initSplashScreenDependencies();
+}
+
+Future<void> _initSharedPreferences() async {
+  final sharedPreferences = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
 }
 
 _initHiveService() async {
@@ -89,9 +97,15 @@ _initHomeDependencies() async {
 }
 
 _initLoginDependencies() async {
+  // =========================== Token Shared Preferences ===========================
+  getIt.registerLazySingleton<TokenSharedPrefs>(
+    () => TokenSharedPrefs(getIt<SharedPreferences>()),
+  );
+
   getIt.registerLazySingleton<LoginUsecase>(
     () => LoginUsecase(
       getIt<UserRemoteRepository>(),
+      getIt<TokenSharedPrefs>(),
     ),
   );
 
