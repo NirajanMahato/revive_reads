@@ -26,7 +26,7 @@ class UserLocalRepository implements IUserRepository {
   Future<Either<Failure, String>> loginUser(
     String email,
     String password,
-  ) async{
+  ) async {
     try {
       final token = await _userLocalDataSource.loginUser(email, password);
       return Right(token);
@@ -36,9 +36,9 @@ class UserLocalRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteUser(String id) async {
+  Future<Either<Failure, void>> deleteUser(String id, String? token) async {
     try {
-      await _userLocalDataSource.deleteUser(id);
+      await _userLocalDataSource.deleteUser(id, token);
       return const Right(null);
     } catch (e) {
       return Left(LocalDatabaseFailure(message: 'Error deleting User: $e'));

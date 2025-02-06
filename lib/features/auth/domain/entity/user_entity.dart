@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class UserEntity extends Equatable{
+class UserEntity extends Equatable {
   final String? userId;
   final String fullName;
   final String email;
@@ -21,9 +21,18 @@ class UserEntity extends Equatable{
     this.avatar,
   });
 
+  // Create an empty constructor or Initial Constructor
+  const UserEntity.empty()
+      : userId = '_empty.userId',
+        fullName = '',
+        email = '',
+        password = '',
+        phone = '',
+        address = '',
+        role = '',
+        avatar = null;
+
   @override
-  List<Object?> get props => [
-    userId,
-    email,
-  ];
+  List<Object?> get props =>
+      [userId, fullName, email, password, phone, address, role, avatar];
 }

@@ -9,5 +9,6 @@ class ApiEndpoints {
   static const String login = "user/sign-in";
   static const String register = "user/sign-up";
   static const String getAllUsers = "user/get-all-users";
+  static const String deleteUser = "user/";
   static const String uploadImage = "user/uploadImage";
 }

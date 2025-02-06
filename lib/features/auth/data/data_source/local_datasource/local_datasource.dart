@@ -33,7 +33,7 @@ class UserLocalDataSource implements IUserDataSource {
   }
 
   @override
-  Future<void> deleteUser(String id) async {
+  Future<void> deleteUser(String id, String? token) async {
     try {
       return await _hiveService.deleteUser(id);
     } catch (e) {

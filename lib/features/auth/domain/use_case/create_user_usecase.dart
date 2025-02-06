@@ -25,7 +25,14 @@ class CreateUserParams extends Equatable {
   });
 
   //Empty constructor
-  // const CreateUserParams.empty() : fullName = '_empty.string';
+  const CreateUserParams.empty()
+      : fullName = '_empty.string',
+        email = '_empty.email',
+        password = '_empty.password',
+        phone = '_empty.phone',
+        address = '_empty.address',
+        role = '_empty.role',
+        avatar = null;
 
   @override
   List<Object?> get props => [fullName];

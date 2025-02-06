@@ -33,9 +33,27 @@ class UserRemoteDataSource implements IUserDataSource {
   }
 
   @override
-  Future<void> deleteUser(String id) {
-    // TODO: implement deleteUser
-    throw UnimplementedError();
+  Future<void> deleteUser(String id, String? token) async{
+     try {
+      var response = await _dio.delete(
+        ApiEndpoints.deleteUser + id,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception(response.statusMessage);
+      }
+    } on DioException catch (e) {
+      throw Exception(e);
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   @override

@@ -27,9 +27,17 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteUser(String id) {
-    // TODO: implement deleteUser
-    throw UnimplementedError();
+  Future<Either<Failure, void>> deleteUser(String id, String? token) async {
+    try {
+      _userRemoteDatasource.deleteUser(id, token);
+      return const Right(null);
+    } catch (e) {
+      return Left(
+        ApiFailure(
+          message: e.toString(),
+        ),
+      );
+    }
   }
 
   @override

@@ -6,6 +6,6 @@ abstract interface class IUserDataSource {
   Future<void> createUser(UserEntity userEntity);
   Future<String> loginUser(String email, String password);
   Future<List<UserEntity>> getAllUsers();
-  Future<void> deleteUser(String id);
+  Future<void> deleteUser(String id, String? token);
   Future<String> uploadProfilePicture(File file);
 }
