@@ -2,6 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:revive_reads/features/auth/domain/entity/user_entity.dart';
 
+part 'user_api_model.g.dart';
+// dart run build_runner build -d
+
 @JsonSerializable()
 class UserApiModel extends Equatable {
   @JsonKey(name: '_id')
@@ -9,7 +12,7 @@ class UserApiModel extends Equatable {
   @JsonKey(name: 'name')
   final String fullName;
   final String email;
-  final String password;
+  final String? password;
   final String phone;
   final String address;
   final String role;
@@ -19,7 +22,7 @@ class UserApiModel extends Equatable {
     this.userId,
     required this.fullName,
     required this.email,
-    required this.password,
+    this.password,
     required this.phone,
     required this.address,
     required this.role,
@@ -68,7 +71,7 @@ class UserApiModel extends Equatable {
         userId: userId,
         fullName: fullName,
         email: email,
-        password: password,
+        password: password ?? '',
         phone: phone,
         address: address,
         role: role,

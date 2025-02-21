@@ -19,7 +19,7 @@ class UserHiveModel extends Equatable {
   final String email;
 
   @HiveField(3)
-  final String password;
+  final String? password;
 
   @HiveField(4)
   final String phone;
@@ -37,7 +37,7 @@ class UserHiveModel extends Equatable {
     String? userId,
     required this.fullName,
     required this.email,
-    required this.password,
+    this.password,
     required this.phone,
     required this.address,
     required this.role,

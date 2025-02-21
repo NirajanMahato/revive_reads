@@ -20,15 +20,23 @@ class UserLocalDataSource implements IUserDataSource {
       throw Exception(e);
     }
   }
-    
+
   @override
-  Future<String> loginUser(String email, String password)async {
+  Future<Map<String, String>> loginUser(String email, String password) async {
     try {
-      await _hiveService.login(email,password);
-      return Future.value("Success");
+      final UserHiveModel? user = await _hiveService.login(email, password);
+
+      if (user != null) {
+        return {
+          'id': user.userId ?? '', // Ensure `userId` is used correctly
+          'token': user
+              .role, // Temporary placeholder, replace with actual token if available
+        };
+      } else {
+        throw Exception("Invalid credentials");
+      }
     } catch (e) {
-      return Future.error(e);
-      
+      throw Exception("Error logging in: ${e.toString()}");
     }
   }
 
@@ -55,6 +63,12 @@ class UserLocalDataSource implements IUserDataSource {
   @override
   Future<String> uploadProfilePicture(File file) {
     // TODO: implement uploadProfilePicture
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UserEntity> getUserById(String userId) {
+    // TODO: implement getUserById
     throw UnimplementedError();
   }
 }

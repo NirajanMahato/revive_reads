@@ -56,11 +56,31 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(
+  Future<Either<Failure, UserEntity>> getUserById(String userId) async {
+    try {
+      final user = await _userRemoteDatasource.getUserById(userId);
+      return Right(user);
+    } catch (e) {
+      return Left(
+        ApiFailure(
+          statusCode: 400,
+          message: e.toString(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, String>>> loginUser(
       String email, String password) async {
     try {
-      final token = await _userRemoteDatasource.loginUser(email, password);
-      return Right(token);
+      final loginData = await _userRemoteDatasource.loginUser(email, password);
+
+      // Ensure non-null values using the null-aware operator (?? '')
+      final String id = loginData['id'] ?? '';
+      final String token = loginData['token'] ?? '';
+
+      return Right({'id': id, 'token': token});
     } catch (e) {
       return Left(
         ApiFailure(

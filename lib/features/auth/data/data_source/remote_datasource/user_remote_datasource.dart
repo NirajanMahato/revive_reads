@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:revive_reads/app/constants/api_endpoints.dart';
 import 'package:revive_reads/features/auth/data/data_source/user_data_source.dart';
 import 'package:revive_reads/features/auth/data/dto/get_all_user_dto.dart';
+import 'package:revive_reads/features/auth/data/dto/get_user_by_id_dto.dart';
 import 'package:revive_reads/features/auth/data/model/user_api_model.dart';
 import 'package:revive_reads/features/auth/domain/entity/user_entity.dart';
 
@@ -33,8 +34,8 @@ class UserRemoteDataSource implements IUserDataSource {
   }
 
   @override
-  Future<void> deleteUser(String id, String? token) async{
-     try {
+  Future<void> deleteUser(String id, String? token) async {
+    try {
       var response = await _dio.delete(
         ApiEndpoints.deleteUser + id,
         options: Options(
@@ -74,7 +75,25 @@ class UserRemoteDataSource implements IUserDataSource {
   }
 
   @override
-  Future<String> loginUser(String email, String password) async {
+  Future<UserEntity> getUserById(String userId) async {
+    try {
+      final response =
+          await _dio.get(ApiEndpoints.getUserById.replaceFirst(":id", userId));
+      if (response.statusCode == 200) {
+        GetUserByIdDTO userDTO = GetUserByIdDTO.fromJson(response.data);
+        return userDTO.data.toEntity();
+      } else {
+        throw Exception(response.statusMessage);
+      }
+    } on DioException catch (e) {
+      throw Exception(e);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<Map<String, String>> loginUser(String email, String password) async {
     try {
       Response response = await _dio.post(
         ApiEndpoints.login,
@@ -85,8 +104,11 @@ class UserRemoteDataSource implements IUserDataSource {
       );
 
       if (response.statusCode == 200) {
-        final token = response.data['user']['token'] as String;
-        return token;
+        final String id =
+            response.data['user']['id'].toString(); // Ensure String
+        final String token =
+            response.data['user']['token'].toString(); // Ensure String
+        return {'id': id, 'token': token};
       } else {
         throw Exception(response.statusMessage);
       }
