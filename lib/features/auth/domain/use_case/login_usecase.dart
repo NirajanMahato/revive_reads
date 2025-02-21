@@ -29,15 +29,22 @@ class LoginUsecase implements UsecaseWithParams<String, LoginParams> {
   LoginUsecase(this.repository, this.tokenSharedPrefs);
 
   @override
-  Future<Either<Failure, String>> call(LoginParams params) {
+  Future<Either<Failure, String>> call(LoginParams params) async {
     return repository.loginUser(params.email, params.password).then((value) {
       return value.fold(
         (failure) => Left(failure),
-        (token) {
-          tokenSharedPrefs.saveToken(token);
-          tokenSharedPrefs.getToken().then((value) {
-            print(value);
-          });
+        (loginResponse) async {
+          final String id = loginResponse['id'] ?? ''; // Ensure non-null value
+          final String token =
+              loginResponse['token'] ?? ''; // Ensure non-null value
+
+          await tokenSharedPrefs.saveIdAndToken(id, token);
+
+          tokenSharedPrefs.getToken().then((value) => print("Token: $value"));
+          tokenSharedPrefs
+              .getUserId()
+              .then((value) => print("User ID: $value"));
+
           return Right(token);
         },
       );

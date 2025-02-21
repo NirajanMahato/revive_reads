@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:revive_reads/features/account/presentation/view/account_view.dart';
 import 'package:revive_reads/features/dashboard/presentation/view/dashboard_view.dart';
+import 'package:revive_reads/features/message/presentation/view/message_view.dart';
 
 class HomeState extends Equatable {
   final int selectedIndex;
@@ -13,23 +15,23 @@ class HomeState extends Equatable {
 
   // Initial state
   static HomeState initial() {
-    return const HomeState(
+    return HomeState(
       selectedIndex: 0,
       views: [
         Center(
           child: DashboardView(),
         ),
-        Center(
-          child: Text('Chats'),
+        const Center(
+          child: MessageView(),
         ),
-        Center(
+        const Center(
           child: Text('Sell'),
         ),
-        Center(
+        const Center(
           child: Text('My Ads'),
         ),
-        Center(
-          child: Text('Account'),
+        const Center(
+          child: AccountView(),
         ),
       ],
     );

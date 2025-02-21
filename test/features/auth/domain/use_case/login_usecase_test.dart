@@ -18,35 +18,41 @@ void main() {
     usecase = LoginUsecase(repository, tokenSharedPrefs);
   });
 
-  test('Should call the [AuthRepo.login] with correct username and password',
+  test(
+      'Should call [AuthRepo.login] with correct email and password, and save token & id',
       () async {
     when(() => repository.loginUser(any(), any()))
         .thenAnswer((invocation) async {
       final email = invocation.positionalArguments[0] as String;
       final password = invocation.positionalArguments[1] as String;
+
       if (email == 'nirajan' && password == 'nirajan123') {
-        return Future.value(const Right('token'));
+        return Future.value(const Right(
+            {'id': 'someId', 'token': 'someToken'})); // Updated return type
       } else {
         return Future.value(
             const Left(ApiFailure(message: 'Invalid email or password')));
       }
     });
-    when(() => tokenSharedPrefs.saveToken(any())).thenAnswer(
-      (_) async => const Right(null),
-    );
+
+    when(() => tokenSharedPrefs.saveIdAndToken(any(), any()))
+        .thenAnswer((_) async => const Right(null));
+
     final result = await usecase(const LoginParams(
       email: 'nirajan',
       password: 'nirajan123',
     ));
 
-    expect(result, const Right('token'));
+    expect(result, const Right('someToken')); // Expect correct token
 
-    verify(() => repository.loginUser(any(), any())).called(1);
-    verify(() => tokenSharedPrefs.saveToken(any())).called(1);
+    verify(() => repository.loginUser('nirajan', 'nirajan123')).called(1);
+    verify(() => tokenSharedPrefs.saveIdAndToken('someId', 'someToken'))
+        .called(1); // Corrected verification
 
     verifyNoMoreInteractions(repository);
     verifyNoMoreInteractions(tokenSharedPrefs);
   });
+
   tearDown(() {
     reset(repository);
     reset(tokenSharedPrefs);
