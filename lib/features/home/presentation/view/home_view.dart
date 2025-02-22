@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:revive_reads/features/home/presentation/view/bottom_view/sell_view.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_state.dart';
+import 'package:revive_reads/features/post_book/presentation/view/post_book_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -58,7 +58,7 @@ class HomeView extends StatelessWidget {
                 // Push to the SellView as a new page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const SellView()),
+                  MaterialPageRoute(builder: (context) => const PostBookView()),
                 );
               },
               backgroundColor: Colors.black,
