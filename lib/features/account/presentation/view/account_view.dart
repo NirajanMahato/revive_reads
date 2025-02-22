@@ -1,18 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revive_reads/app/shared_prefs/token_shared_prefs.dart';
 import 'package:revive_reads/features/account/presentation/view_model/account_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountView extends StatelessWidget {
+class AccountView extends StatefulWidget {
   const AccountView({super.key});
 
   @override
+  State<AccountView> createState() => _AccountViewState();
+}
+
+class _AccountViewState extends State<AccountView> {
+  late String userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserIdAndFetchData();
+  }
+
+  // Fetch userId from SharedPreferences and dispatch event
+  void _loadUserIdAndFetchData() async {
+    final prefs = TokenSharedPrefs(await SharedPreferences.getInstance());
+    final result = await prefs.getUserId();
+
+    result.fold(
+      (failure) {
+        // Handle error, maybe navigate to login
+        print("Error fetching user ID: ${failure.message}");
+      },
+      (id) {
+        setState(() {
+          userId = id;
+        });
+
+        // Dispatch the event to load user data
+        context.read<AccountBloc>().add(LoadUser(userId));
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Assuming user ID is available, replace with actual user ID from your token or SharedPreferences.
-    const String userId = "679cb34b3b45352fb35a7aa4";
-
-    // Dispatch the event to load user data
-    context.read<AccountBloc>().add(const LoadUser(userId));
-
     return Scaffold(
       body: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
@@ -52,7 +82,8 @@ class AccountView extends StatelessWidget {
                         CircleAvatar(
                           radius: 50,
                           backgroundImage: NetworkImage(
-                              "http://10.0.2.2:5000/api/uploads/users/${state.user.avatar}"),
+                            "http://10.0.2.2:5000/api/uploads/users/${state.user.avatar}",
+                          ),
                         ),
 
                         const SizedBox(height: 16),
@@ -170,9 +201,6 @@ class AccountView extends StatelessWidget {
               ),
             ),
           );
-
-          // Default return if nothing else is shown
-          return const Center(child: Text('No user data available.'));
         },
       ),
     );
