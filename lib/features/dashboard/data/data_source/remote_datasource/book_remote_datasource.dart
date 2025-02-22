@@ -37,7 +37,8 @@ class BookRemoteDataSource implements IBookDataSource {
   @override
   Future<List<BookEntity>> searchBooks(String query) async {
     try {
-      final response = await _dio.get("${ApiEndpoints.getApprovedBooks}?q=$query");
+      final response =
+          await _dio.get("${ApiEndpoints.getApprovedBooks}?search=$query");
       if (response.statusCode == 200) {
         return (response.data as List)
             .map((json) => BookEntity(

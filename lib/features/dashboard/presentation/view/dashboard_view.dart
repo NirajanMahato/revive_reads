@@ -1,4 +1,3 @@
-import 'package:emojis/emojis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -90,20 +89,41 @@ class DashboardView extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
+                // Add this inside the build method where categories are being built
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildCategoryItem("${Emojis.openBook} Fiction"),
-                      _buildCategoryItem("${Emojis.books} Non-Fiction"),
-                      _buildCategoryItem("${Emojis.sparkles} Fantasy"),
-                      _buildCategoryItem("${Emojis.lightBulb} Mystery"),
-                      _buildCategoryItem("${Emojis.rocket} Science Fiction"),
-                      _buildCategoryItem("${Emojis.memo} Biography"),
-                      _buildCategoryItem("${Emojis.scroll} History"),
-                    ],
+                  child: BlocBuilder<BookBloc, BookState>(
+                    builder: (context, state) {
+                      // Assuming the initial selected genre is 'All'
+                      String selectedGenre =
+                          state is BookLoaded && state.books.isNotEmpty
+                              ? state.books.first.genre
+                              : 'All';
+
+                      return Row(
+                        children: [
+                          _buildCategoryItem(
+                              context, 'All', "All", selectedGenre == 'All'),
+                          _buildCategoryItem(context, 'Fiction', "📖 Fiction",
+                              selectedGenre == 'Fiction'),
+                          _buildCategoryItem(context, 'Non-Fiction',
+                              "📚 Non-Fiction", selectedGenre == 'Non-Fiction'),
+                          _buildCategoryItem(context, 'Fantasy', "✨ Fantasy",
+                              selectedGenre == 'Fantasy'),
+                          _buildCategoryItem(context, 'Mystery', "💡 Mystery",
+                              selectedGenre == 'Mystery'),
+                          _buildCategoryItem(context, 'Science Fiction',
+                              "🚀 Sci-Fi", selectedGenre == 'Science Fiction'),
+                          _buildCategoryItem(context, 'Biography',
+                              "📝 Biography", selectedGenre == 'Biography'),
+                          _buildCategoryItem(context, 'History', "📜 History",
+                              selectedGenre == 'History'),
+                        ],
+                      );
+                    },
                   ),
                 ),
+
                 const SizedBox(height: 30),
 
                 // Recent Listings Section
@@ -158,27 +178,35 @@ class DashboardView extends StatelessWidget {
   }
 
   // Category Item
-  Widget _buildCategoryItem(String label) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFdcdfe6)),
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+  Widget _buildCategoryItem(
+      BuildContext context, String genre, String label, bool isSelected) {
+    return GestureDetector(
+      onTap: () {
+        context
+            .read<BookBloc>()
+            .add(FilterByGenreEvent(genre)); // Trigger genre filter
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.white,
+          border: Border.all(color: const Color(0xFFdcdfe6)),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            color: isSelected ? Colors.white : Colors.black,
           ),
-        ],
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 16,
-          fontFamily: 'Poppins Medium',
         ),
       ),
     );
