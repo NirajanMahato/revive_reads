@@ -15,4 +15,5 @@ class ApiEndpoints {
 
   // ====================== Book Routes =========================
   static const String getApprovedBooks = "book/get-approved-books";
+  static const String getBookById = "book/get-book-by-id/";
 }

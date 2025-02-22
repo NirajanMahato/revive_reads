@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:revive_reads/features/account/domain/entity/account_entity.dart';
 import 'package:revive_reads/features/auth/domain/entity/user_entity.dart';
 import 'package:revive_reads/features/auth/domain/use_case/get_user_by_id_usecase.dart';
 
@@ -21,14 +20,21 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
 
     final result = await _getUserByIdUsecase.call(event.userId);
 
-    result.fold(
-      (failure) => emit(state.copyWith(
-          isLoading: false,
-          error: failure.message,
-          // Keep the existing user instead of setting to null
-          user: state.user)),
-      (userData) =>
-          emit(state.copyWith(isLoading: false, user: userData, error: null)),
-    );
+    if (result.isLeft()) {
+      // Handle the failure case properly
+      final failure = result.fold((failure) => failure, (user) => null);
+      emit(state.copyWith(
+        isLoading: false,
+        error: failure?.message ?? 'Unknown error occurred',
+      ));
+    } else {
+      // Handle success (Right) case
+      final userData = result.fold((failure) => null, (user) => user);
+      emit(state.copyWith(
+        isLoading: false,
+        user: userData,
+        error: null,
+      ));
+    }
   }
 }

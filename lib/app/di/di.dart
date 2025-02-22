@@ -21,6 +21,12 @@ import 'package:revive_reads/features/dashboard/domain/use_case/search_books_use
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
 import 'package:revive_reads/features/onBoarding/presentation/view_model/onboarding_cubit.dart';
+import 'package:revive_reads/features/single_book/data/data_source/book_detail_datasource.dart';
+import 'package:revive_reads/features/single_book/data/data_source/remote_datasource/book_detail_remote_data_source.dart';
+import 'package:revive_reads/features/single_book/data/repositories/book_detail_remote_repository.dart';
+import 'package:revive_reads/features/single_book/domain/repository/book_detail_repository.dart';
+import 'package:revive_reads/features/single_book/domain/use_case/get_book_detail_use_case.dart';
+import 'package:revive_reads/features/single_book/presentation/view_model/book_detail_bloc.dart';
 import 'package:revive_reads/features/splash/presentation/view_model/splash_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,6 +41,7 @@ Future<void> initDependencies() async {
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initBookDependencies();
+  _initBookDetailFeatureDependencies();
   _initAccountDependencies();
 
   await _initOnBoardingScreenDependencies();
@@ -164,6 +171,19 @@ Future<void> _initBookDependencies() async {
   );
 }
 
+void _initBookDetailFeatureDependencies() {
+  getIt.registerLazySingleton<IBookDetailDataSource>(
+      () => BookDetailRemoteDataSource(getIt<Dio>()));
+
+  getIt.registerLazySingleton<IBookDetailRepository>(
+      () => BookDetailRemoteRepository(getIt<IBookDetailDataSource>()));
+
+  getIt.registerLazySingleton<GetBookDetailUseCase>(
+      () => GetBookDetailUseCase(getIt<IBookDetailRepository>()));
+
+  getIt.registerFactory<BookDetailBloc>(
+      () => BookDetailBloc(getIt<GetBookDetailUseCase>()));
+}
 
 _initSplashScreenDependencies() async {
   getIt.registerFactory(

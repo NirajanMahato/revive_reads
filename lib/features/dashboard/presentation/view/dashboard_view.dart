@@ -2,9 +2,11 @@ import 'package:emojis/emojis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_event.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_state.dart';
+import 'package:revive_reads/features/single_book/presentation/view/book_detail_view.dart';
 
 class DashboardView extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
@@ -126,16 +128,17 @@ class DashboardView extends StatelessWidget {
                         itemCount: state.books.length,
                         itemBuilder: (context, index) {
                           final book = state.books[index];
-                          return _buildListingItem(
-                            book.title,
-                            book.description,
-                            book.images.isNotEmpty
+                          return _buildBookCard(
+                            context: context, // ✅ Pass context here
+                            imageUrl: book.images.isNotEmpty
                                 ? 'http://10.0.2.2:5000/api/uploads/books/${book.images.first}'
-                                : null,
-                            book.genre,
-                            book.price,
-                            book.condition,
-                            DateTime.now(),
+                                : '',
+                            title: book.title,
+                            description: book.description,
+                            price: book.price,
+                            condition: book.condition,
+                            postedDate: DateTime.now(),
+                            bookId: book.id, // ✅ Pass book ID for navigation
                           );
                         },
                       );
@@ -181,114 +184,165 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-  // Single Book Listing Item with details
-  Widget _buildListingItem(
-    String title,
-    String description,
-    String? imageUrl,
-    String genre,
-    double price,
-    String condition,
-    DateTime approvalDate,
-  ) {
-    final daysAgo = DateTime.now().difference(approvalDate).inDays;
+  Widget _buildBookCard({
+    required BuildContext context, // Pass BuildContext here
+    required String imageUrl,
+    required String title,
+    required String description,
+    required double price,
+    required String condition,
+    required DateTime postedDate,
+    required String bookId, // Pass book ID for navigation
+  }) {
+    final timeAgo = _getTimeAgo(postedDate);
 
-    return Card(
-      elevation: 5,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Book Cover and Info
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: imageUrl != null && imageUrl.isNotEmpty
-                      ? Image.network(
-                          imageUrl,
-                          width: 90,
-                          height: 130,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          width: 90,
-                          height: 130,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.book, color: Colors.grey),
-                        ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      const SizedBox(height: 8),
-                      Text("Price: Rs. ${price.toStringAsFixed(2)}"),
-                      Text("Condition: $condition"),
-                      Text("Posted: $daysAgo days ago"),
-                    ],
+    return GestureDetector(
+      onTap: () {
+        // ✅ Navigate to Single Book Detail Page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BookDetailView(bookId: bookId),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 3,
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Book Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 200,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 50),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Save the book
-                  },
-                  icon: const Icon(Icons.bookmark_border),
-                  label: const Text("Save"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(height: 10),
+
+              // Book Title
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+
+              // Short Description
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+
+              // Price and Condition Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Rs. ${NumberFormat("#,##0").format(price)}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Start chat
-                  },
-                  icon: const Icon(Icons.chat_bubble_outline),
-                  label: const Text("Chat Now"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    child: Text(
+                      condition,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 4),
+
+              // Time Posted
+              Text(
+                timeAgo,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 10),
+
+              // Action Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Save Button
+                  TextButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.bookmark_border),
+                    label: const Text("Save"),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
+                  // Chat Now Button
+                  TextButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.chat_bubble_outline),
+                    label: const Text("Chat Now"),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  // Helper function to display time posted (e.g., "1 month ago")
+  String _getTimeAgo(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays >= 30) {
+      final months = (difference.inDays / 30).floor();
+      return '$months month${months > 1 ? 's' : ''} ago';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

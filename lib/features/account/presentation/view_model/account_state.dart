@@ -13,16 +13,17 @@ class AccountState extends Equatable {
 
   factory AccountState.initial() {
     return const AccountState(
-        user: UserEntity(
-          fullName: '',
-          email: '',
-          password: '',
-          phone: '',
-          address: '',
-          role: '',
-          avatar: ''
-        ),
-        isLoading: false);
+      user: UserEntity(
+        userId: '',
+        fullName: '',
+        email: '',
+        phone: '',
+        address: '',
+        role: '',
+        avatar: '',
+      ),
+      isLoading: false,
+    );
   }
 
   AccountState copyWith({
