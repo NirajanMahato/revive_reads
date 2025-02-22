@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:revive_reads/features/dashboard/domain/constants/book_categories.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_event.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_state.dart';
@@ -94,31 +95,20 @@ class DashboardView extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   child: BlocBuilder<BookBloc, BookState>(
                     builder: (context, state) {
-                      // Assuming the initial selected genre is 'All'
-                      String selectedGenre =
-                          state is BookLoaded && state.books.isNotEmpty
-                              ? state.books.first.genre
-                              : 'All';
+                      String selectedGenre = 'All';
+                      if (state is BookLoaded) {
+                        selectedGenre = state.selectedGenre;
+                      }
 
                       return Row(
-                        children: [
-                          _buildCategoryItem(
-                              context, 'All', "All", selectedGenre == 'All'),
-                          _buildCategoryItem(context, 'Fiction', "📖 Fiction",
-                              selectedGenre == 'Fiction'),
-                          _buildCategoryItem(context, 'Non-Fiction',
-                              "📚 Non-Fiction", selectedGenre == 'Non-Fiction'),
-                          _buildCategoryItem(context, 'Fantasy', "✨ Fantasy",
-                              selectedGenre == 'Fantasy'),
-                          _buildCategoryItem(context, 'Mystery', "💡 Mystery",
-                              selectedGenre == 'Mystery'),
-                          _buildCategoryItem(context, 'Science Fiction',
-                              "🚀 Sci-Fi", selectedGenre == 'Science Fiction'),
-                          _buildCategoryItem(context, 'Biography',
-                              "📝 Biography", selectedGenre == 'Biography'),
-                          _buildCategoryItem(context, 'History', "📜 History",
-                              selectedGenre == 'History'),
-                        ],
+                        children: categories
+                            .map((category) => _buildCategoryItem(
+                                  context,
+                                  category.value,
+                                  category.label,
+                                  selectedGenre == category.value,
+                                ))
+                            .toList(),
                       );
                     },
                   ),
@@ -182,9 +172,7 @@ class DashboardView extends StatelessWidget {
       BuildContext context, String genre, String label, bool isSelected) {
     return GestureDetector(
       onTap: () {
-        context
-            .read<BookBloc>()
-            .add(FilterByGenreEvent(genre)); // Trigger genre filter
+        context.read<BookBloc>().add(FilterByGenreEvent(genre));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -211,166 +199,166 @@ class DashboardView extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBookCard({
-    required BuildContext context, // Pass BuildContext here
-    required String imageUrl,
-    required String title,
-    required String description,
-    required double price,
-    required String condition,
-    required DateTime postedDate,
-    required String bookId, // Pass book ID for navigation
-  }) {
-    final timeAgo = _getTimeAgo(postedDate);
+Widget _buildBookCard({
+  required BuildContext context, // Pass BuildContext here
+  required String imageUrl,
+  required String title,
+  required String description,
+  required double price,
+  required String condition,
+  required DateTime postedDate,
+  required String bookId, // Pass book ID for navigation
+}) {
+  final timeAgo = _getTimeAgo(postedDate);
 
-    return GestureDetector(
-      onTap: () {
-        // ✅ Navigate to Single Book Detail Page
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookDetailView(bookId: bookId),
-          ),
-        );
-      },
-      child: Card(
-        elevation: 3,
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Book Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imageUrl,
+  return GestureDetector(
+    onTap: () {
+      // ✅ Navigate to Single Book Detail Page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BookDetailView(bookId: bookId),
+        ),
+      );
+    },
+    child: Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Book Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                imageUrl,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
                   height: 200,
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 200,
-                    width: double.infinity,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, size: 50),
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.broken_image, size: 50),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Book Title
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+
+            // Short Description
+            Text(
+              description,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+
+            // Price and Condition Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Rs. ${NumberFormat("#,##0").format(price)}",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-
-              // Book Title
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-
-              // Short Description
-              Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-
-              // Price and Condition Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Rs. ${NumberFormat("#,##0").format(price)}",
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    condition,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 12,
+                      color: Colors.blue,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
                     ),
                   ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      condition,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
 
-              // Time Posted
-              Text(
-                timeAgo,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
+            // Time Posted
+            Text(
+              timeAgo,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 10),
 
-              // Action Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Save Button
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.bookmark_border),
-                    label: const Text("Save"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.black,
-                    ),
+            // Action Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Save Button
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.bookmark_border),
+                  label: const Text("Save"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.black,
                   ),
-                  // Chat Now Button
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.chat_bubble_outline),
-                    label: const Text("Chat Now"),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.blue,
-                    ),
+                ),
+                // Chat Now Button
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.chat_bubble_outline),
+                  label: const Text("Chat Now"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blue,
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  // Helper function to display time posted (e.g., "1 month ago")
-  String _getTimeAgo(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+// Helper function to display time posted (e.g., "1 month ago")
+String _getTimeAgo(DateTime date) {
+  final now = DateTime.now();
+  final difference = now.difference(date);
 
-    if (difference.inDays >= 30) {
-      final months = (difference.inDays / 30).floor();
-      return '$months month${months > 1 ? 's' : ''} ago';
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
-    } else {
-      return 'Just now';
-    }
+  if (difference.inDays >= 30) {
+    final months = (difference.inDays / 30).floor();
+    return '$months month${months > 1 ? 's' : ''} ago';
+  } else if (difference.inDays > 0) {
+    return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+  } else if (difference.inHours > 0) {
+    return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+  } else if (difference.inMinutes > 0) {
+    return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+  } else {
+    return 'Just now';
   }
 }

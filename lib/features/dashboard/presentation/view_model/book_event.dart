@@ -1,4 +1,3 @@
-
 abstract class BookEvent {}
 
 class FetchBooksEvent extends BookEvent {}
@@ -13,5 +12,7 @@ class FilterByGenreEvent extends BookEvent {
   final String genre;
 
   FilterByGenreEvent(this.genre);
-}
 
+  @override
+  List<Object?> get props => [genre];
+}

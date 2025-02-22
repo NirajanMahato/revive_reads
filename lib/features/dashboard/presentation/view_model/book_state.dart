@@ -12,11 +12,17 @@ class BookLoading extends BookState {}
 
 class BookLoaded extends BookState {
   final List<BookEntity> books;
+  final List<BookEntity> allBooks;
+  final String selectedGenre;
 
-  BookLoaded(this.books);
+  BookLoaded({
+    required this.books,
+    required this.allBooks,
+    required this.selectedGenre,
+  });
 
   @override
-  List<Object?> get props => [books];
+  List<Object?> get props => [books, allBooks, selectedGenre];
 }
 
 class BookError extends BookState {
