@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:revive_reads/features/account/presentation/view/account_view.dart';
 import 'package:revive_reads/features/dashboard/presentation/view/dashboard_view.dart';
 import 'package:revive_reads/features/message/presentation/view/message_view.dart';
+import 'package:revive_reads/features/post_book/presentation/view/post_book_view.dart';
 
 class HomeState extends Equatable {
   final int selectedIndex;
@@ -25,7 +26,7 @@ class HomeState extends Equatable {
           child: MessageView(),
         ),
         const Center(
-          child: Text('Sell'),
+          child: PostBookView(),
         ),
         const Center(
           child: Text('My Ads'),

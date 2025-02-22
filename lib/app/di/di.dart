@@ -21,6 +21,10 @@ import 'package:revive_reads/features/dashboard/domain/use_case/search_books_use
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
 import 'package:revive_reads/features/onBoarding/presentation/view_model/onboarding_cubit.dart';
+import 'package:revive_reads/features/post_book/data/data_source/remote_data_source/post_book_remote_data_source.dart';
+import 'package:revive_reads/features/post_book/data/repositories/post_book_remote_repository.dart';
+import 'package:revive_reads/features/post_book/domain/use_case/post_book_usecase.dart';
+import 'package:revive_reads/features/post_book/presentation/view_model/post_book_bloc.dart';
 import 'package:revive_reads/features/single_book/data/data_source/book_detail_datasource.dart';
 import 'package:revive_reads/features/single_book/data/data_source/remote_datasource/book_detail_remote_data_source.dart';
 import 'package:revive_reads/features/single_book/data/repositories/book_detail_remote_repository.dart';
@@ -41,6 +45,7 @@ Future<void> initDependencies() async {
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initBookDependencies();
+  _initPostBookFeatureDependencies();
   _initBookDetailFeatureDependencies();
   _initAccountDependencies();
 
@@ -142,6 +147,22 @@ _initLoginDependencies() async {
   );
 }
 
+void _initPostBookFeatureDependencies() {
+  getIt.registerLazySingleton<PostBookRemoteDataSource>(
+      () => PostBookRemoteDataSource(getIt<Dio>()));
+
+  getIt.registerLazySingleton<PostBookRemoteRepository>(
+      () => PostBookRemoteRepository(getIt<PostBookRemoteDataSource>()));
+
+  getIt.registerLazySingleton<PostBookUseCase>(
+      () => PostBookUseCase(getIt<PostBookRemoteRepository>()));
+
+  getIt.registerFactory<PostBookBloc>(() => PostBookBloc(
+        getIt<PostBookUseCase>(),
+        getIt<TokenSharedPrefs>(),
+      ));
+}
+
 Future<void> _initBookDependencies() async {
   // Remote Data Source
   getIt.registerFactory<BookRemoteDataSource>(
@@ -166,7 +187,6 @@ Future<void> _initBookDependencies() async {
   getIt.registerFactory<BookBloc>(
     () => BookBloc(
       getBooksUseCase: getIt<GetBooksUseCase>(),
-      searchBooksUseCase: getIt<SearchBooksUseCase>(),
     ),
   );
 }
