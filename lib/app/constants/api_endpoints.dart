@@ -13,6 +13,14 @@ class ApiEndpoints {
   static const String deleteUser = "user/";
   static const String uploadImage = "user/uploadImage";
 
+  static const String addToFavorites = "user/add-to-favorites";
+  static const String removeFromFavorites = "user/remove-from-favorites/";
+
+  static const String getBookByUser = "book/get-book-by-user";
+  static const String getApprovedByUser = "book/get-book-by-user";
+  static const String deleteBook = "book/delete-book";
+  static const String markAsSold = "book/sold";
+  
   // ====================== Book Routes =========================
   static const String getApprovedBooks = "book/get-approved-books";
   static const String getBookById = "book/get-book-by-id/";

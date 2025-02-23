@@ -16,3 +16,13 @@ class FilterByGenreEvent extends BookEvent {
   @override
   List<Object?> get props => [genre];
 }
+
+class ToggleFavoriteEvent extends BookEvent {
+  final String bookId;
+  final bool isFavorite;
+
+  ToggleFavoriteEvent({required this.bookId, required this.isFavorite});
+
+  @override
+  List<Object?> get props => [bookId, isFavorite];
+}
