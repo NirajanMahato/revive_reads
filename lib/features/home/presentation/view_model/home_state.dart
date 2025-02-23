@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:revive_reads/features/account/presentation/view/account_view.dart';
 import 'package:revive_reads/features/dashboard/presentation/view/dashboard_view.dart';
 import 'package:revive_reads/features/message/presentation/view/message_view.dart';
+import 'package:revive_reads/features/my_ads/presentation/view/my_ads_view.dart';
 import 'package:revive_reads/features/post_book/presentation/view/post_book_view.dart';
 
 class HomeState extends Equatable {
@@ -29,7 +30,7 @@ class HomeState extends Equatable {
           child: PostBookView(),
         ),
         const Center(
-          child: Text('My Ads'),
+          child: MyAdsView(),
         ),
         const Center(
           child: AccountView(),

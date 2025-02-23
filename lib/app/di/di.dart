@@ -15,11 +15,22 @@ import 'package:revive_reads/features/auth/domain/use_case/upload_image_usecase.
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:revive_reads/features/dashboard/data/data_source/remote_datasource/book_remote_datasource.dart';
+import 'package:revive_reads/features/dashboard/data/data_source/remote_datasource/favorite_remote_data_source.dart';
 import 'package:revive_reads/features/dashboard/data/repositories/book_remote_repository.dart';
+import 'package:revive_reads/features/dashboard/data/repositories/favorite_remote_repository.dart';
+import 'package:revive_reads/features/dashboard/domain/use_case/favorite_usecase.dart';
 import 'package:revive_reads/features/dashboard/domain/use_case/get_books_usecase.dart';
 import 'package:revive_reads/features/dashboard/domain/use_case/search_books_usecase.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
+import 'package:revive_reads/features/my_ads/data/data_source/my_ads_data_source.dart';
+import 'package:revive_reads/features/my_ads/data/data_source/remote_data_source/my_ads_remote_data_source.dart';
+import 'package:revive_reads/features/my_ads/data/repositories/my_ads_remote_repository.dart';
+import 'package:revive_reads/features/my_ads/domain/repository/my_ads_repository.dart';
+import 'package:revive_reads/features/my_ads/domain/use_case/delete_book_usecase.dart';
+import 'package:revive_reads/features/my_ads/domain/use_case/get_user_books_usecase.dart';
+import 'package:revive_reads/features/my_ads/domain/use_case/mark_as_sold_usecase.dart';
+import 'package:revive_reads/features/my_ads/presentation/view_model/my_ads_bloc.dart';
 import 'package:revive_reads/features/onBoarding/presentation/view_model/onboarding_cubit.dart';
 import 'package:revive_reads/features/post_book/data/data_source/remote_data_source/post_book_remote_data_source.dart';
 import 'package:revive_reads/features/post_book/data/repositories/post_book_remote_repository.dart';
@@ -45,6 +56,7 @@ Future<void> initDependencies() async {
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initBookDependencies();
+  await _initMyAdsFeature();
   _initPostBookFeatureDependencies();
   _initBookDetailFeatureDependencies();
   _initAccountDependencies();
@@ -157,21 +169,31 @@ void _initPostBookFeatureDependencies() {
   getIt.registerLazySingleton<PostBookUseCase>(
       () => PostBookUseCase(getIt<PostBookRemoteRepository>()));
 
-  getIt.registerFactory<PostBookBloc>(() => PostBookBloc(
-        getIt<PostBookUseCase>(),
-        getIt<TokenSharedPrefs>(),
-      ));
+  getIt.registerFactory<PostBookBloc>(
+    () => PostBookBloc(
+      getIt<PostBookUseCase>(),
+      getIt<TokenSharedPrefs>(),
+    ),
+  );
 }
 
 Future<void> _initBookDependencies() async {
-  // Remote Data Source
+  // Remote Data Sources
   getIt.registerFactory<BookRemoteDataSource>(
     () => BookRemoteDataSource(getIt<Dio>()),
   );
 
-  // Repository
+  getIt.registerFactory<FavoriteRemoteDataSource>(
+    () => FavoriteRemoteDataSource(getIt<Dio>()),
+  );
+
+  // Repositories
   getIt.registerLazySingleton<BookRemoteRepository>(
     () => BookRemoteRepository(getIt<BookRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<FavoriteRemoteRepository>(
+    () => FavoriteRemoteRepository(getIt<FavoriteRemoteDataSource>()),
   );
 
   // Use Cases
@@ -183,10 +205,54 @@ Future<void> _initBookDependencies() async {
     () => SearchBooksUseCase(getIt<BookRemoteRepository>()),
   );
 
+  // Add Favorite Use Cases
+  getIt.registerLazySingleton<AddToFavoritesUseCase>(
+    () => AddToFavoritesUseCase(getIt<FavoriteRemoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<RemoveFromFavoritesUseCase>(
+    () => RemoveFromFavoritesUseCase(getIt<FavoriteRemoteRepository>()),
+  );
+
   // Bloc
   getIt.registerFactory<BookBloc>(
     () => BookBloc(
       getBooksUseCase: getIt<GetBooksUseCase>(),
+      addToFavoritesUseCase: getIt<AddToFavoritesUseCase>(),
+      removeFromFavoritesUseCase: getIt<RemoveFromFavoritesUseCase>(),
+      tokenSharedPrefs: getIt<TokenSharedPrefs>(),
+    ),
+  );
+}
+
+Future<void> _initMyAdsFeature() async {
+  // Data Sources
+  getIt.registerLazySingleton<IMyAdsDataSource>(
+    () => MyAdsRemoteDataSource(getIt<Dio>()),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<IMyAdsRepository>(
+    () => MyAdsRemoteRepository(
+      getIt<IMyAdsDataSource>(),
+      getIt<TokenSharedPrefs>(),
+    ),
+  );
+
+  // Use Cases
+  getIt.registerLazySingleton(
+      () => GetUserBooksUseCase(getIt<IMyAdsRepository>()));
+  getIt.registerLazySingleton(
+      () => DeleteBookUseCase(getIt<IMyAdsRepository>()));
+  getIt.registerLazySingleton(
+      () => MarkAsSoldUseCase(getIt<IMyAdsRepository>()));
+
+  // Bloc
+  getIt.registerFactory(
+    () => MyAdsBloc(
+      getUserBooksUseCase: getIt<GetUserBooksUseCase>(),
+      deleteBookUseCase: getIt<DeleteBookUseCase>(),
+      markAsSoldUseCase: getIt<MarkAsSoldUseCase>(),
     ),
   );
 }

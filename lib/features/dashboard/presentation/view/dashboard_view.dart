@@ -202,142 +202,216 @@ class DashboardView extends StatelessWidget {
 }
 
 Widget _buildBookCard({
-  required BuildContext context, // Pass BuildContext here
+  required BuildContext context,
   required String imageUrl,
   required String title,
   required String description,
   required double price,
   required String condition,
   required DateTime postedDate,
-  required String bookId, // Pass book ID for navigation
+  required String bookId,
 }) {
   final timeAgo = _getTimeAgo(postedDate);
 
-  return GestureDetector(
-    onTap: () {
-      // ✅ Navigate to Single Book Detail Page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BookDetailView(bookId: bookId),
-        ),
-      );
+  return BlocListener<BookBloc, BookState>(
+    listener: (context, state) {
+      if (state is BookError || state is FavoriteActionSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              state is BookError
+                  ? state.message
+                  : (state as FavoriteActionSuccess).message,
+            ),
+            backgroundColor: state is BookError
+                ? Colors.red.shade700
+                : Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(10),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
     },
-    child: Card(
-      elevation: 3,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Book Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 200,
-                  width: double.infinity,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image, size: 50),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Book Title
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-
-            // Short Description
-            Text(
-              description,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-
-            // Price and Condition Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Rs. ${NumberFormat("#,##0").format(price)}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    condition,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-
-            // Time Posted
-            Text(
-              timeAgo,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 10),
-
-            // Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Save Button
-                TextButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.bookmark_border),
-                  label: const Text("Save"),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                  ),
-                ),
-                // Chat Now Button
-                TextButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.chat_bubble_outline),
-                  label: const Text("Chat Now"),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.blue,
-                  ),
-                ),
-              ],
+    child: GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => BookDetailView(bookId: bookId)),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left Image Section
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                ),
+                child: SizedBox(
+                  width: 120,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[200],
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 40,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ),
+                      // Condition Badge
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            condition,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[700],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Content Section
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Description
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Price
+                      Text(
+                        "Rs. ${NumberFormat("#,##0").format(price)}",
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      const Spacer(),
+
+                      // Time and Actions
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            timeAgo,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              // Save Button
+                              BlocBuilder<BookBloc, BookState>(
+                                builder: (context, state) {
+                                  final isFavorite = (state is BookLoaded)
+                                      ? state.favoriteBookIds.contains(bookId)
+                                      : false;
+                                  return IconButton(
+                                    onPressed: () {
+                                      context.read<BookBloc>().add(
+                                            ToggleFavoriteEvent(
+                                              bookId: bookId,
+                                              isFavorite: !isFavorite,
+                                            ),
+                                          );
+                                    },
+                                    icon: Icon(
+                                      isFavorite
+                                          ? Icons.bookmark
+                                          : Icons.bookmark_border_outlined,
+                                      color: isFavorite
+                                          ? Colors.blue
+                                          : Colors.grey[700],
+                                      size: 20,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 16),
+                              // Chat Button
+                              Icon(
+                                Icons.chat_outlined,
+                                size: 20,
+                                color: Colors.grey[700],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),
