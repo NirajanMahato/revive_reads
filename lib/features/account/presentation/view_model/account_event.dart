@@ -7,11 +7,13 @@ sealed class AccountEvent extends Equatable {
   List<Object> get props => [];
 }
 
-final class LoadUser extends AccountEvent {
+final class LoadAccount extends AccountEvent {
   final String userId;
 
-  const LoadUser(this.userId);
+  const LoadAccount(this.userId);
 
   @override
   List<Object> get props => [userId];
 }
+
+class LogoutRequested extends AccountEvent {}

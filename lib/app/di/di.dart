@@ -3,13 +3,18 @@ import 'package:get_it/get_it.dart';
 import 'package:revive_reads/app/shared_prefs/token_shared_prefs.dart';
 import 'package:revive_reads/core/network/api_service.dart';
 import 'package:revive_reads/core/network/hive_service.dart';
+import 'package:revive_reads/features/account/data/data_source/account_data_source.dart';
+import 'package:revive_reads/features/account/data/data_source/remote_data_source/account_remote_data_source.dart';
+import 'package:revive_reads/features/account/data/repositories/account_remote_repository.dart';
+import 'package:revive_reads/features/account/domain/repository/account_repository.dart';
+import 'package:revive_reads/features/account/domain/use_case/get_account_usecase.dart';
+import 'package:revive_reads/features/account/domain/use_case/logout_usecase.dart';
 import 'package:revive_reads/features/account/presentation/view_model/account_bloc.dart';
 import 'package:revive_reads/features/auth/data/data_source/local_datasource/local_datasource.dart';
 import 'package:revive_reads/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import 'package:revive_reads/features/auth/data/repositories/user_local_repository.dart';
 import 'package:revive_reads/features/auth/data/repositories/user_remote_repository.dart';
 import 'package:revive_reads/features/auth/domain/use_case/create_user_usecase.dart';
-import 'package:revive_reads/features/auth/domain/use_case/get_user_by_id_usecase.dart';
 import 'package:revive_reads/features/auth/domain/use_case/login_usecase.dart';
 import 'package:revive_reads/features/auth/domain/use_case/upload_image_usecase.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
@@ -138,11 +143,36 @@ _initHomeDependencies() async {
 }
 
 void _initAccountDependencies() {
-  getIt.registerLazySingleton<GetUserByIdUsecase>(
-      () => GetUserByIdUsecase(getIt<UserRemoteRepository>()));
+  // Data Sources
+  getIt.registerLazySingleton<IAccountDataSource>(
+    () => AccountRemoteDataSource(getIt<Dio>()),
+  );
 
+  // Repository
+  getIt.registerLazySingleton<IAccountRepository>(
+    () => AccountRemoteRepository(
+      getIt<IAccountDataSource>(),
+      getIt<TokenSharedPrefs>(),
+    ),
+  );
+
+  // Use Cases
+  getIt.registerLazySingleton<GetAccountUseCase>(
+    () => GetAccountUseCase(getIt<IAccountRepository>()),
+  );
+
+  // LogoutUseCase
+  getIt.registerLazySingleton<LogoutUseCase>(
+    () => LogoutUseCase(getIt<TokenSharedPrefs>()),
+  );
+
+  // Bloc
   getIt.registerFactory<AccountBloc>(
-      () => AccountBloc(getUserByIdUsecase: getIt<GetUserByIdUsecase>()));
+    () => AccountBloc(
+      getAccountUseCase: getIt<GetAccountUseCase>(),
+      logoutUseCase: getIt<LogoutUseCase>(),
+    ),
+  );
 }
 
 _initLoginDependencies() async {

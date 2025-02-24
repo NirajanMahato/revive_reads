@@ -1,43 +1,36 @@
 part of 'account_bloc.dart';
 
 class AccountState extends Equatable {
-  final UserEntity user;
+  final AccountEntity? account;
   final bool isLoading;
   final String? error;
+  final bool isLoggedOut;
 
   const AccountState({
-    required this.user,
+    this.account,
     required this.isLoading,
     this.error,
+    this.isLoggedOut = false,
   });
 
   factory AccountState.initial() {
     return const AccountState(
-      user: UserEntity(
-        userId: '',
-        fullName: '',
-        email: '',
-        phone: '',
-        address: '',
-        role: '',
-        avatar: '',
-      ),
       isLoading: false,
     );
   }
 
   AccountState copyWith({
-    UserEntity? user,
+    AccountEntity? account,
     bool? isLoading,
     String? error,
   }) {
     return AccountState(
-      user: user ?? this.user,
+      account: account ?? this.account,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
   }
 
   @override
-  List<Object> get props => [user, isLoading];
+  List<Object?> get props => [account, isLoading, error];
 }
