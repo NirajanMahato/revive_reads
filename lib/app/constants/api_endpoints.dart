@@ -20,9 +20,13 @@ class ApiEndpoints {
   static const String getApprovedByUser = "book/get-book-by-user";
   static const String deleteBook = "book/delete-book";
   static const String markAsSold = "book/sold";
-  
+
   // ====================== Book Routes =========================
   static const String getApprovedBooks = "book/get-approved-books";
   static const String getBookById = "book/get-book-by-id/";
   static const String postBook = "book/post-book/";
+
+  // ====================== Notification Routes =========================
+  static const String notifications = "notifications/";
+  static const String markNotificationsAsRead = "notifications/mark-read";
 }

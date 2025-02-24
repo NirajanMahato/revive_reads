@@ -31,6 +31,13 @@ import 'package:revive_reads/features/my_ads/domain/use_case/delete_book_usecase
 import 'package:revive_reads/features/my_ads/domain/use_case/get_user_books_usecase.dart';
 import 'package:revive_reads/features/my_ads/domain/use_case/mark_as_sold_usecase.dart';
 import 'package:revive_reads/features/my_ads/presentation/view_model/my_ads_bloc.dart';
+import 'package:revive_reads/features/notification/data/data_source/notification_data_source.dart';
+import 'package:revive_reads/features/notification/data/data_source/remote_data_source/notification_remote_data_source.dart';
+import 'package:revive_reads/features/notification/data/repositories/notification_remote_repository.dart';
+import 'package:revive_reads/features/notification/domain/repositiry/notification_repository.dart';
+import 'package:revive_reads/features/notification/domain/use_case/get_notifications_usecase.dart';
+import 'package:revive_reads/features/notification/domain/use_case/mark_as_read_usecase.dart';
+import 'package:revive_reads/features/notification/presentation/view_model/notification_bloc.dart';
 import 'package:revive_reads/features/onBoarding/presentation/view_model/onboarding_cubit.dart';
 import 'package:revive_reads/features/post_book/data/data_source/remote_data_source/post_book_remote_data_source.dart';
 import 'package:revive_reads/features/post_book/data/repositories/post_book_remote_repository.dart';
@@ -57,6 +64,7 @@ Future<void> initDependencies() async {
   await _initLoginDependencies();
   await _initBookDependencies();
   await _initMyAdsFeature();
+  await _initNotificationFeature();
   _initPostBookFeatureDependencies();
   _initBookDetailFeatureDependencies();
   _initAccountDependencies();
@@ -253,6 +261,37 @@ Future<void> _initMyAdsFeature() async {
       getUserBooksUseCase: getIt<GetUserBooksUseCase>(),
       deleteBookUseCase: getIt<DeleteBookUseCase>(),
       markAsSoldUseCase: getIt<MarkAsSoldUseCase>(),
+    ),
+  );
+}
+
+Future<void> _initNotificationFeature() async {
+  // Data Sources
+  getIt.registerLazySingleton<INotificationDataSource>(
+    () => NotificationRemoteDataSource(getIt<Dio>()),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<INotificationRepository>(
+    () => NotificationRemoteRepository(
+      getIt<INotificationDataSource>(),
+      getIt<TokenSharedPrefs>(),
+    ),
+  );
+
+  // Use Cases
+  getIt.registerLazySingleton(
+    () => GetNotificationsUseCase(getIt<INotificationRepository>()),
+  );
+  getIt.registerLazySingleton(
+    () => MarkAsReadUseCase(getIt<INotificationRepository>()),
+  );
+
+  // Bloc
+  getIt.registerFactory(
+    () => NotificationBloc(
+      getNotificationsUseCase: getIt<GetNotificationsUseCase>(),
+      markAsReadUseCase: getIt<MarkAsReadUseCase>(),
     ),
   );
 }
