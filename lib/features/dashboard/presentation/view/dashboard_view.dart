@@ -6,6 +6,9 @@ import 'package:revive_reads/features/dashboard/domain/constants/book_categories
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_event.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_state.dart';
+import 'package:revive_reads/features/notification/presentation/view/notification_view.dart';
+import 'package:revive_reads/features/notification/presentation/view_model/notification_bloc.dart';
+import 'package:revive_reads/features/notification/presentation/view_model/notification_state.dart';
 import 'package:revive_reads/features/single_book/presentation/view/book_detail_view.dart';
 
 class DashboardView extends StatelessWidget {
@@ -34,12 +37,39 @@ class DashboardView extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        // Handle notifications
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const NotificationView()),
+                        );
                       },
-                      icon: const Icon(
-                        BoxIcons.bx_bell,
-                        color: Colors.black,
-                        size: 30,
+                      icon: BlocBuilder<NotificationBloc, NotificationState>(
+                        builder: (context, state) {
+                          final hasUnread = state is NotificationLoaded &&
+                              state.notifications.any((n) => !n.isRead);
+                          return Stack(
+                            children: [
+                              const Icon(BoxIcons.bx_bell,
+                                  color: Colors.black, size: 30),
+                              if (hasUnread)
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 12,
+                                      minHeight: 12,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
