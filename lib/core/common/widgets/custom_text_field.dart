@@ -5,13 +5,18 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?) validator;
   final TextInputType keyboardType;
   final String hintText;
+  final bool obscureText;
+  final Widget? suffixIcon;
 
-  const CustomTextField(
-      {super.key,
-      required this.controller,
-      required this.validator,
-      required this.keyboardType,
-      required this.hintText});
+  const CustomTextField({
+    super.key,
+    required this.controller,
+    required this.validator,
+    required this.keyboardType,
+    required this.hintText,
+    this.obscureText = false,
+    this.suffixIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +24,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
+      obscureText: obscureText,
       style: const TextStyle(fontSize: 19.0, color: Colors.black),
       decoration: InputDecoration(
         contentPadding:
@@ -36,6 +42,7 @@ class CustomTextField extends StatelessWidget {
         border: InputBorder.none,
         hintText: hintText,
         hintStyle: const TextStyle(fontSize: 18.0, color: Colors.black45),
+        suffixIcon: suffixIcon,
       ),
     );
   }

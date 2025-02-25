@@ -6,12 +6,19 @@ import 'package:revive_reads/core/common/widgets/custom_text_field.dart';
 import 'package:revive_reads/features/auth/presentation/view/register_view.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({super.key});
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
 
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
   final _loginFormKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +102,19 @@ class LoginView extends StatelessWidget {
                           validator: ValidateLogin.passwordValidate,
                           keyboardType: TextInputType.visiblePassword,
                           hintText: 'Your Password',
+                          obscureText: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
                         ),
                         const SizedBox(
                           height: 10,
