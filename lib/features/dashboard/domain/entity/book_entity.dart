@@ -9,6 +9,7 @@ class BookEntity extends Equatable {
   final String condition;
   final bool delivery;
   final String sellerId;
+  final String sellerName;
   final List<String> images;
 
   const BookEntity({
@@ -20,6 +21,7 @@ class BookEntity extends Equatable {
     required this.condition,
     required this.delivery,
     required this.sellerId,
+    required this.sellerName,
     required this.images,
   });
 
@@ -33,6 +35,7 @@ class BookEntity extends Equatable {
         condition,
         delivery,
         sellerId,
+        sellerName,
         images
       ];
 }

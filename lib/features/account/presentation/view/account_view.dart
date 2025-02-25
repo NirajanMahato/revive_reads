@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:revive_reads/app/shared_prefs/token_shared_prefs.dart';
 import 'package:revive_reads/features/account/presentation/view_model/account_bloc.dart';
+import 'package:revive_reads/features/auth/presentation/view/login_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountView extends StatefulWidget {
@@ -44,8 +45,8 @@ class _AccountViewState extends State<AccountView> {
     return BlocListener<AccountBloc, AccountState>(
       listener: (context, state) {
         if (state.isLoggedOut) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/login',
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LoginView()),
             (route) => false,
           );
         }

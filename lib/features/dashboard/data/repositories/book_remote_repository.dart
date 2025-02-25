@@ -12,8 +12,9 @@ class BookRemoteRepository implements IBookRepository {
   @override
   Future<Either<Failure, List<BookEntity>>> getAllBooks() async {
     try {
-      final books = await remoteDataSource.getAllBooks();
-      return Right(books);
+      final bookModels = await remoteDataSource.getAllBooks();
+      final bookEntities = bookModels.map((model) => model.toEntity()).toList();
+      return Right(bookEntities);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));
     }
@@ -22,8 +23,9 @@ class BookRemoteRepository implements IBookRepository {
   @override
   Future<Either<Failure, List<BookEntity>>> searchBooks(String query) async {
     try {
-      final books = await remoteDataSource.searchBooks(query);
-      return Right(books);
+      final bookModels = await remoteDataSource.searchBooks(query);
+      final bookEntities = bookModels.map((model) => model.toEntity()).toList();
+      return Right(bookEntities);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));
     }

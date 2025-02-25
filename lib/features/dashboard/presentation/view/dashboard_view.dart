@@ -6,6 +6,7 @@ import 'package:revive_reads/features/dashboard/domain/constants/book_categories
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_event.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_state.dart';
+import 'package:revive_reads/features/message/presentation/view/chat_screen.dart';
 import 'package:revive_reads/features/notification/presentation/view/notification_view.dart';
 import 'package:revive_reads/features/notification/presentation/view_model/notification_bloc.dart';
 import 'package:revive_reads/features/notification/presentation/view_model/notification_state.dart';
@@ -169,7 +170,7 @@ class DashboardView extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final book = state.books[index];
                           return _buildBookCard(
-                            context: context, // ✅ Pass context here
+                            context: context,
                             imageUrl: book.images.isNotEmpty
                                 ? 'http://10.0.2.2:5000/api/uploads/books/${book.images.first}'
                                 : '',
@@ -178,7 +179,10 @@ class DashboardView extends StatelessWidget {
                             price: book.price,
                             condition: book.condition,
                             postedDate: DateTime.now(),
-                            bookId: book.id, // ✅ Pass book ID for navigation
+                            bookId: book.id,
+                            sellerId: book.sellerId,
+                            sellerName: book.sellerName,
+                            sellerAvatar: "default_avatar.png",
                           );
                         },
                       );
@@ -240,6 +244,10 @@ Widget _buildBookCard({
   required String condition,
   required DateTime postedDate,
   required String bookId,
+  // Add seller information
+  required String sellerId,
+  required String sellerName,
+  required String sellerAvatar,
 }) {
   final timeAgo = _getTimeAgo(postedDate);
 
@@ -426,11 +434,25 @@ Widget _buildBookCard({
                                 },
                               ),
                               const SizedBox(width: 16),
-                              // Chat Button
-                              Icon(
-                                Icons.chat_outlined,
-                                size: 20,
-                                color: Colors.grey[700],
+                              // Chat Button - Now functional
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        receiverId: sellerId,
+                                        receiverName: sellerName,
+                                        receiverAvatar: sellerAvatar,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(
+                                  Icons.chat_outlined,
+                                  size: 20,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ],
                           ),
