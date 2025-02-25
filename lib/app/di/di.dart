@@ -28,6 +28,16 @@ import 'package:revive_reads/features/dashboard/domain/use_case/get_books_usecas
 import 'package:revive_reads/features/dashboard/domain/use_case/search_books_usecase.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
+import 'package:revive_reads/features/message/data/data_source/message_data_source.dart';
+import 'package:revive_reads/features/message/data/data_source/remote_data_source/message_remote_data_source.dart';
+import 'package:revive_reads/features/message/data/data_source/remote_data_source/socket_service.dart';
+import 'package:revive_reads/features/message/data/repositories/message_remote_repository.dart';
+import 'package:revive_reads/features/message/domain/repositiry/message_repository.dart';
+import 'package:revive_reads/features/message/domain/use_case/get_messages_usecase.dart';
+import 'package:revive_reads/features/message/domain/use_case/get_unread_message_count_usecase.dart';
+import 'package:revive_reads/features/message/domain/use_case/init_socket_usecase.dart';
+import 'package:revive_reads/features/message/domain/use_case/send_message_usecase.dart';
+import 'package:revive_reads/features/message/presentation/view_model/message_bloc.dart';
 import 'package:revive_reads/features/my_ads/data/data_source/my_ads_data_source.dart';
 import 'package:revive_reads/features/my_ads/data/data_source/remote_data_source/my_ads_remote_data_source.dart';
 import 'package:revive_reads/features/my_ads/data/repositories/my_ads_remote_repository.dart';
@@ -68,6 +78,7 @@ Future<void> initDependencies() async {
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initBookDependencies();
+  await _initMessageFeature();
   await _initMyAdsFeature();
   await _initNotificationFeature();
   _initPostBookFeatureDependencies();
@@ -259,6 +270,53 @@ Future<void> _initBookDependencies() async {
       addToFavoritesUseCase: getIt<AddToFavoritesUseCase>(),
       removeFromFavoritesUseCase: getIt<RemoveFromFavoritesUseCase>(),
       tokenSharedPrefs: getIt<TokenSharedPrefs>(),
+    ),
+  );
+}
+
+Future<void> _initMessageFeature() async {
+  // Register socket service as singleton
+  getIt.registerLazySingleton<SocketService>(() => SocketService());
+
+  // Data Source
+  getIt.registerLazySingleton<IMessageDataSource>(
+    () => MessageRemoteDataSource(getIt<Dio>()),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<IMessageRepository>(
+    () => MessageRemoteRepository(
+      getIt<IMessageDataSource>(),
+      getIt<TokenSharedPrefs>(),
+      getIt<SocketService>(),
+    ),
+  );
+
+  // Use Cases
+  getIt.registerLazySingleton<GetMessagesUseCase>(
+    () => GetMessagesUseCase(getIt<IMessageRepository>()),
+  );
+
+  getIt.registerLazySingleton<SendMessageUseCase>(
+    () => SendMessageUseCase(getIt<IMessageRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetUnreadMessageCountUseCase>(
+    () => GetUnreadMessageCountUseCase(getIt<IMessageRepository>()),
+  );
+
+  getIt.registerLazySingleton<InitSocketUseCase>(
+    () => InitSocketUseCase(getIt<IMessageRepository>()),
+  );
+
+  // Bloc
+  getIt.registerFactory<MessageBloc>(
+    () => MessageBloc(
+      getMessagesUseCase: getIt<GetMessagesUseCase>(),
+      sendMessageUseCase: getIt<SendMessageUseCase>(),
+      getUnreadMessageCountUseCase: getIt<GetUnreadMessageCountUseCase>(),
+      initSocketUseCase: getIt<InitSocketUseCase>(),
+      messageRepository: getIt<IMessageRepository>(),
     ),
   );
 }

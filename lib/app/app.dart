@@ -8,6 +8,7 @@ import 'package:revive_reads/features/auth/presentation/view_model/signup/regist
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_event.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
+import 'package:revive_reads/features/message/presentation/view_model/message_bloc.dart';
 import 'package:revive_reads/features/notification/presentation/view_model/notification_bloc.dart';
 import 'package:revive_reads/features/post_book/presentation/view_model/post_book_bloc.dart';
 import 'package:revive_reads/features/single_book/presentation/view_model/book_detail_bloc.dart';
@@ -34,6 +35,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<PostBookBloc>(create: (_) => getIt<PostBookBloc>()),
         BlocProvider<NotificationBloc>(
             create: (_) => getIt<NotificationBloc>()),
+        BlocProvider<MessageBloc>(
+          create: (context) => getIt<MessageBloc>(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -29,4 +29,7 @@ class ApiEndpoints {
   // ====================== Notification Routes =========================
   static const String notifications = "notifications/";
   static const String markNotificationsAsRead = "notifications/mark-read";
+
+  // ====================== Message Routes =========================
+  static const String messages = "messages/";
 }
