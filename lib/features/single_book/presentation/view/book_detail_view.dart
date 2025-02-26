@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revive_reads/core/utils/gyroscope_tilt_view.dart';
 import 'package:revive_reads/features/single_book/presentation/view_model/book_detail_bloc.dart';
 
 class BookDetailView extends StatelessWidget {
@@ -31,11 +32,22 @@ class BookDetailView extends StatelessWidget {
                   // Book Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      'http://10.0.2.2:5000/api/uploads/books/${book.images.first}',
-                      width: double.infinity,
-                      height: 250,
-                      fit: BoxFit.cover,
+                    child: GyroscopeTiltView(
+                      child: Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.network(
+                            'http://10.0.2.2:5000/api/uploads/books/${book.images.first}',
+                            fit: BoxFit.cover,
+                            height: 300,
+                            width: double.infinity,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
