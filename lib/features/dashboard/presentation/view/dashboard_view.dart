@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:revive_reads/core/utils/shake_detector.dart';
 import 'package:revive_reads/features/dashboard/domain/constants/book_categories.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_event.dart';
@@ -12,10 +13,46 @@ import 'package:revive_reads/features/notification/presentation/view_model/notif
 import 'package:revive_reads/features/notification/presentation/view_model/notification_state.dart';
 import 'package:revive_reads/features/single_book/presentation/view/book_detail_view.dart';
 
-class DashboardView extends StatelessWidget {
-  final TextEditingController _searchController = TextEditingController();
+class DashboardView extends StatefulWidget {
+  const DashboardView({super.key});
 
-  DashboardView({super.key});
+  @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  final TextEditingController _searchController = TextEditingController();
+  late ShakeDetector _shakeDetector;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _shakeDetector = ShakeDetector(
+      onShake: () {
+        // Refresh books when phone is shaken
+        context.read<BookBloc>().add(FetchBooksEvent());
+
+        // Show a snackbar to let the user know refresh is happening
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('📚 Refreshing books...'),
+            duration: Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    );
+
+    _shakeDetector.startListening();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _shakeDetector.stopListening();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
