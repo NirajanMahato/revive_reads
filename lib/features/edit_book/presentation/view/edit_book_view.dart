@@ -8,6 +8,7 @@ import 'package:revive_reads/features/edit_book/presentation/view_model/edit_boo
 import 'package:revive_reads/features/edit_book/presentation/view_model/edit_book_event.dart';
 import 'package:revive_reads/features/edit_book/presentation/view_model/edit_book_state.dart';
 import 'package:revive_reads/features/my_ads/domain/entity/my_book_entity.dart';
+import 'package:revive_reads/features/post_book/domain/constants/book_constants.dart';
 
 class EditBookView extends StatefulWidget {
   final MyBookEntity book;
@@ -26,7 +27,7 @@ class _EditBookViewState extends State<EditBookView> {
   late String _selectedGenre;
   late String _selectedCondition;
   late bool _delivery;
-  List<File> _newImages = [];
+  final List<File> _newImages = [];
   late List<String> _existingImages;
 
   final ImagePicker _picker = ImagePicker();
@@ -53,12 +54,46 @@ class _EditBookViewState extends State<EditBookView> {
     super.dispose();
   }
 
-  Future<void> _pickImages() async {
-    final pickedFiles = await _picker.pickMultiImage();
-    if (pickedFiles.isNotEmpty) {
-      setState(() {
-        _newImages = pickedFiles.map((file) => File(file.path)).toList();
-      });
+  Future<void> _pickImagesFromGallery() async {
+    try {
+      final pickedFiles = await _picker.pickMultiImage(
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+      if (pickedFiles.isNotEmpty) {
+        setState(() {
+          _newImages
+              .addAll(pickedFiles.map((file) => File(file.path)).toList());
+        });
+      }
+    } catch (e) {
+      print('Error picking images: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error picking images')),
+      );
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      if (photo != null) {
+        setState(() {
+          _newImages.add(File(photo.path));
+        });
+      }
+    } catch (e) {
+      print('Error taking photo: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error taking photo')),
+      );
     }
   }
 
@@ -100,13 +135,18 @@ class _EditBookViewState extends State<EditBookView> {
         listener: (context, state) {
           if (state is EditBookSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Book updated successfully!')),
+              SnackBar(
+                content: const Text('Book updated successfully!'),
+                backgroundColor: Colors.grey[800],
+              ),
             );
-            // Navigate back with a success result
             Navigator.pop(context, true);
           } else if (state is EditBookFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.grey[700],
+              ),
             );
           }
         },
@@ -127,7 +167,7 @@ class _EditBookViewState extends State<EditBookView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Book Images
+                          // Book Images Section
                           const Text(
                             'Book Images',
                             style: TextStyle(
@@ -137,8 +177,50 @@ class _EditBookViewState extends State<EditBookView> {
                           ),
                           const SizedBox(height: 8),
 
+                          // Camera and Gallery Buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: _pickImagesFromGallery,
+                                  icon: const Icon(Icons.photo_library),
+                                  label: const Text('Gallery'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[700],
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: _takePhoto,
+                                  icon: const Icon(Icons.camera_alt),
+                                  label: const Text('Camera'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[600],
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
                           // Existing Images
                           if (_existingImages.isNotEmpty) ...[
+                            const Text(
+                              'Current Images',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
                             SizedBox(
                               height: 120,
                               child: ListView.builder(
@@ -167,8 +249,8 @@ class _EditBookViewState extends State<EditBookView> {
                                               _removeExistingImage(index),
                                           child: Container(
                                             padding: const EdgeInsets.all(2),
-                                            decoration: const BoxDecoration(
-                                              color: Colors.red,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[850],
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Icon(
@@ -191,7 +273,10 @@ class _EditBookViewState extends State<EditBookView> {
                           if (_newImages.isNotEmpty) ...[
                             const Text(
                               'New Images',
-                              style: TextStyle(fontSize: 14),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
@@ -221,8 +306,8 @@ class _EditBookViewState extends State<EditBookView> {
                                           onTap: () => _removeNewImage(index),
                                           child: Container(
                                             padding: const EdgeInsets.all(2),
-                                            decoration: const BoxDecoration(
-                                              color: Colors.red,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[850],
                                               shape: BoxShape.circle,
                                             ),
                                             child: const Icon(
@@ -241,138 +326,185 @@ class _EditBookViewState extends State<EditBookView> {
                             const SizedBox(height: 16),
                           ],
 
-                          // Add Images Button
-                          ElevatedButton.icon(
-                            onPressed: _pickImages,
-                            icon: const Icon(Icons.add_photo_alternate),
-                            label: const Text('Add Images'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
                           const SizedBox(height: 24),
 
-                          // Form Fields
-                          TextFormField(
-                            controller: _titleController,
-                            decoration: const InputDecoration(
-                              labelText: 'Title',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) =>
-                                value!.isEmpty ? 'Title is required' : null,
-                          ),
-                          const SizedBox(height: 16),
-
-                          TextFormField(
-                            controller: _descriptionController,
-                            decoration: const InputDecoration(
-                              labelText: 'Description',
-                              border: OutlineInputBorder(),
-                            ),
-                            maxLines: 3,
-                            validator: (value) => value!.isEmpty
-                                ? 'Description is required'
-                                : null,
-                          ),
-                          const SizedBox(height: 16),
-
-                          TextFormField(
-                            controller: _priceController,
-                            decoration: const InputDecoration(
-                              labelText: 'Price',
-                              border: OutlineInputBorder(),
-                              prefixText: 'Rs. ',
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'Price is required';
-                              }
-                              if (double.tryParse(value) == null) {
-                                return 'Invalid price format';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Genre Dropdown
-                          DropdownButtonFormField<String>(
-                            value: _selectedGenre,
-                            decoration: const InputDecoration(
-                              labelText: 'Genre',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Fiction',
-                                child: Text('Fiction'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Non Fiction & Biography',
-                                child: Text('Non Fiction & Biography'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Technology',
-                                child: Text('Technology'),
-                              ),
-                              // Add other genres from your constants
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedGenre = value!;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Condition Dropdown
-                          DropdownButtonFormField<String>(
-                            value: _selectedCondition,
-                            decoration: const InputDecoration(
-                              labelText: 'Condition',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Brand New',
-                                child: Text('Brand New'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Like New',
-                                child: Text('Like New'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Used',
-                                child: Text('Used'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Acceptable',
-                                child: Text('Acceptable'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCondition = value!;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Delivery Switch
-                          SwitchListTile(
-                            title: const Text('Delivery Available'),
-                            value: _delivery,
-                            onChanged: (value) {
-                              setState(() {
-                                _delivery = value;
-                              });
-                            },
-                            tileColor: Colors.grey[100],
+                          // Book Details Card
+                          Card(
+                            elevation: 2,
+                            color: Colors.grey[50],
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Book Details',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Form Fields
+                                  TextFormField(
+                                    controller: _titleController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Title',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                      prefixIcon: Icon(Icons.book,
+                                          color: Colors.grey[600]),
+                                    ),
+                                    validator: (value) => value!.isEmpty
+                                        ? 'Title is required'
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  TextFormField(
+                                    controller: _descriptionController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Description',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                      prefixIcon: Icon(Icons.description,
+                                          color: Colors.grey[600]),
+                                      alignLabelWithHint: true,
+                                    ),
+                                    maxLines: 3,
+                                    validator: (value) => value!.isEmpty
+                                        ? 'Description is required'
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  TextFormField(
+                                    controller: _priceController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Price',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                      prefixIcon: Icon(Icons.attach_money,
+                                          color: Colors.grey[600]),
+                                      prefixText: 'Rs. ',
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Price is required';
+                                      }
+                                      if (double.tryParse(value) == null) {
+                                        return 'Invalid price format';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Genre Dropdown - Using Book Constants
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedGenre,
+                                    decoration: InputDecoration(
+                                      labelText: 'Genre',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                      prefixIcon: Icon(Icons.category,
+                                          color: Colors.grey[600]),
+                                    ),
+                                    items: BookConstants.genres
+                                        .map((genre) => DropdownMenuItem(
+                                              value: genre,
+                                              child: Text(genre),
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedGenre = value!;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Condition Dropdown - Using Book Constants
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedCondition,
+                                    decoration: InputDecoration(
+                                      labelText: 'Condition',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!),
+                                      ),
+                                      prefixIcon: Icon(Icons.star_rate,
+                                          color: Colors.grey[600]),
+                                    ),
+                                    items: BookConstants.conditions
+                                        .map((condition) => DropdownMenuItem(
+                                              value: condition,
+                                              child: Text(condition),
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedCondition = value!;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Delivery Switch
+                                  SwitchListTile(
+                                    title: const Text('Delivery Available'),
+                                    subtitle: Text(
+                                      _delivery
+                                          ? 'You will arrange delivery'
+                                          : 'Buyer will pick up',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    value: _delivery,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _delivery = value;
+                                      });
+                                    },
+                                    secondary: Icon(
+                                      _delivery
+                                          ? Icons.local_shipping
+                                          : Icons.store,
+                                      color: _delivery
+                                          ? Colors.grey[800]
+                                          : Colors.grey[400],
+                                    ),
+                                    tileColor: Colors.grey[100],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      side:
+                                          BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                    activeColor: Colors.grey[800],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -380,17 +512,23 @@ class _EditBookViewState extends State<EditBookView> {
                           // Submit Button
                           SizedBox(
                             width: double.infinity,
+                            height: 50,
                             child: ElevatedButton(
                               onPressed: _submitUpdate,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
+                                backgroundColor: Colors.grey[850],
                                 foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
                               child: const Text(
                                 'Update Book',
-                                style: TextStyle(fontSize: 16),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),

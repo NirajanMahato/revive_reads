@@ -26,10 +26,8 @@ class EditBookBloc extends Bloc<EditBookEvent, EditBookState> {
 
     final tokenResult = await tokenSharedPrefs.getToken();
 
-    // Fix: Use proper async/await pattern
     final result = await tokenResult.fold(
       (failure) async {
-        // Return the failure result directly
         return Left<Failure, MyBookEntity>(failure);
       },
       (token) async {
@@ -49,7 +47,6 @@ class EditBookBloc extends Bloc<EditBookEvent, EditBookState> {
       },
     );
 
-    // Now handle the result outside of any callbacks
     result.fold(
       (failure) => emit(EditBookFailure(failure.message)),
       (updatedBook) => emit(EditBookSuccess(updatedBook)),
