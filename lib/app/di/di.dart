@@ -27,6 +27,12 @@ import 'package:revive_reads/features/dashboard/domain/use_case/favorite_usecase
 import 'package:revive_reads/features/dashboard/domain/use_case/get_books_usecase.dart';
 import 'package:revive_reads/features/dashboard/domain/use_case/search_books_usecase.dart';
 import 'package:revive_reads/features/dashboard/presentation/view_model/book_bloc.dart';
+import 'package:revive_reads/features/edit_book/data/data_source/edit_book_datasource.dart';
+import 'package:revive_reads/features/edit_book/data/data_source/remote_data_source/edit_book_remote_datasource.dart';
+import 'package:revive_reads/features/edit_book/data/repositories/edit_remote_book_repository.dart';
+import 'package:revive_reads/features/edit_book/domain/repository/edit_book_repository.dart';
+import 'package:revive_reads/features/edit_book/domain/use_case/update_book_usecase.dart';
+import 'package:revive_reads/features/edit_book/presentation/view_model/edit_book_bloc.dart';
 import 'package:revive_reads/features/home/presentation/view_model/home_cubit.dart';
 import 'package:revive_reads/features/message/data/data_source/message_data_source.dart';
 import 'package:revive_reads/features/message/data/data_source/remote_data_source/message_remote_data_source.dart';
@@ -82,6 +88,7 @@ Future<void> initDependencies() async {
   await _initMyAdsFeature();
   await _initNotificationFeature();
   _initPostBookFeatureDependencies();
+  _initEditBookFeature();
   _initBookDetailFeatureDependencies();
   _initAccountDependencies();
 
@@ -222,6 +229,31 @@ void _initPostBookFeatureDependencies() {
     () => PostBookBloc(
       getIt<PostBookUseCase>(),
       getIt<TokenSharedPrefs>(),
+    ),
+  );
+}
+
+void _initEditBookFeature() {
+  // Data Source
+  getIt.registerLazySingleton<IEditBookDataSource>(
+    () => EditBookRemoteDataSource(getIt<Dio>()),
+  );
+
+  // Repository
+  getIt.registerLazySingleton<IEditBookRepository>(
+    () => EditBookRepository(getIt<IEditBookDataSource>()),
+  );
+
+  // Use Case
+  getIt.registerLazySingleton<UpdateBookUseCase>(
+    () => UpdateBookUseCase(getIt<IEditBookRepository>()),
+  );
+
+  // Bloc
+  getIt.registerFactory<EditBookBloc>(
+    () => EditBookBloc(
+      updateBookUseCase: getIt<UpdateBookUseCase>(),
+      tokenSharedPrefs: getIt<TokenSharedPrefs>(),
     ),
   );
 }

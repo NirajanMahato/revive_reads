@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:revive_reads/app/di/di.dart';
+import 'package:revive_reads/features/edit_book/presentation/view/edit_book_view.dart';
 import 'package:revive_reads/features/my_ads/domain/entity/my_book_entity.dart';
 import 'package:revive_reads/features/my_ads/presentation/view_model/my_ads_bloc.dart';
 import 'package:revive_reads/features/my_ads/presentation/view_model/my_ads_event.dart';
@@ -157,12 +158,21 @@ class MyAdsView extends StatelessWidget {
                         if (!book.sold) ...[
                           // Edit Button
                           OutlinedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
+                            onPressed: () async {
+                              final refreshNeeded = await Navigator.push(
                                 context,
-                                '/edit-book',
-                                arguments: book,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      EditBookView(book: book),
+                                ),
                               );
+
+                              if (refreshNeeded == true) {
+                                // This will refresh the list of books
+                                context
+                                    .read<MyAdsBloc>()
+                                    .add(FetchUserBooksEvent());
+                              }
                             },
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
@@ -261,20 +271,23 @@ class MyAdsView extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context, String bookId) {
+    final myAdsBloc = context.read<MyAdsBloc>();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Book'),
         content: const Text('Are you sure you want to delete this book?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              context.read<MyAdsBloc>().add(DeleteBookEvent(bookId));
-              Navigator.pop(context);
+              // Use the stored bloc reference instead of trying to read from dialogContext
+              myAdsBloc.add(DeleteBookEvent(bookId));
+              Navigator.pop(dialogContext);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Delete'),
