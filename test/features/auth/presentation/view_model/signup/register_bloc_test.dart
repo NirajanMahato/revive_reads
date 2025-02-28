@@ -77,7 +77,7 @@ void main() {
       )),
       expect: () => [
         RegisterState.initial().copyWith(isLoading: true),
-        RegisterState.initial().copyWith(isLoading: false, isSuccess: true),
+        RegisterState.initial().copyWith(isLoading: false, isRegistered: true),
       ],
     );
 
@@ -97,7 +97,7 @@ void main() {
       )),
       expect: () => [
         RegisterState.initial().copyWith(isLoading: true),
-        RegisterState.initial().copyWith(isLoading: false, isSuccess: false),
+        RegisterState.initial().copyWith(isLoading: false, isRegistered: false),
       ],
     );
 
@@ -112,7 +112,7 @@ void main() {
       expect: () => [
         RegisterState.initial().copyWith(isLoading: true),
         RegisterState.initial().copyWith(
-            isLoading: false, isSuccess: true, imageName: 'uploaded_image.jpg'),
+            isLoading: false, isRegistered: true, imageName: 'uploaded_image.jpg'),
       ],
     );
 
@@ -126,7 +126,7 @@ void main() {
       act: (bloc) => bloc.add(LoadImage(file: File('path/to/file.jpg'))),
       expect: () => [
         RegisterState.initial().copyWith(isLoading: true),
-        RegisterState.initial().copyWith(isLoading: false, isSuccess: false),
+        RegisterState.initial().copyWith(isLoading: false, isRegistered: false),
       ],
     );
   });

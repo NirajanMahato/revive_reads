@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revive_reads/app/di/di.dart';
+import 'package:revive_reads/core/network/bloc/network_bloc.dart';
+import 'package:revive_reads/core/network/bloc/network_event.dart';
 import 'package:revive_reads/core/theme/app_theme.dart';
 import 'package:revive_reads/features/account/presentation/view_model/account_bloc.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
@@ -23,15 +25,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<NetworkBloc>(
+          create: (_) => getIt<NetworkBloc>()..add(NetworkObserveEvent()),
+        ),
         BlocProvider<SplashCubit>(create: (_) => getIt<SplashCubit>()),
         BlocProvider<HomeCubit>(create: (_) => getIt<HomeCubit>()),
         BlocProvider<RegisterBloc>(create: (_) => getIt<RegisterBloc>()),
         BlocProvider<LoginBloc>(create: (_) => getIt<LoginBloc>()),
         BlocProvider<AccountBloc>(create: (_) => getIt<AccountBloc>()),
         BlocProvider<BookBloc>(
-            create: (_) => getIt<BookBloc>()
-              ..add(FetchBooksEvent()) // Trigger fetching books here
-            ),
+          create: (_) {
+            final bloc = getIt<BookBloc>();
+            bloc.add(FetchBooksEvent()); // Dispatch event after creation
+            return bloc;
+          },
+        ),
         BlocProvider<BookDetailBloc>(create: (_) => getIt<BookDetailBloc>()),
         BlocProvider<PostBookBloc>(create: (_) => getIt<PostBookBloc>()),
         BlocProvider<NotificationBloc>(

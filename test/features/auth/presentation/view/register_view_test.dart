@@ -70,7 +70,10 @@ void main() {
       (tester) async {
     // Set up mock data
     final mockState = RegisterState(
-        isLoading: true, isSuccess: false, imageName: 'test_image.jpg');
+        isLoading: true,
+        isRegistered: false,
+        isImageUploaded: true,
+        imageName: 'test_image.jpg');
     when(() => registerBloc.state).thenReturn(mockState);
 
     // Provide data in the form fields

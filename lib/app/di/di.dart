@@ -2,7 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:revive_reads/app/shared_prefs/token_shared_prefs.dart';
 import 'package:revive_reads/core/network/api_service.dart';
+import 'package:revive_reads/core/network/bloc/network_bloc.dart';
 import 'package:revive_reads/core/network/hive_service.dart';
+import 'package:revive_reads/core/network/network_connectivity.dart';
+import 'package:revive_reads/core/repository/network_repository.dart';
 import 'package:revive_reads/features/account/data/data_source/account_data_source.dart';
 import 'package:revive_reads/features/account/data/data_source/remote_data_source/account_remote_data_source.dart';
 import 'package:revive_reads/features/account/data/repositories/account_remote_repository.dart';
@@ -76,6 +79,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final getIt = GetIt.instance;
 
 Future<void> initDependencies() async {
+  initNetworkDependencies();
   await _initSharedPreferences();
   await _initHiveService();
   await _initApiService();
@@ -109,6 +113,22 @@ _initApiService() {
   // Remote Data Source
   getIt.registerLazySingleton<Dio>(
     () => ApiService(Dio()).dio,
+  );
+}
+
+void initNetworkDependencies() {
+  final networkConnectivity = NetworkConnectivity();
+  networkConnectivity.initialize();
+  getIt.registerLazySingleton<NetworkConnectivity>(() => networkConnectivity);
+
+  // NetworkRepository before NetworkBloc
+  getIt.registerLazySingleton<NetworkRepository>(
+    () => NetworkRepository(getIt<NetworkConnectivity>()),
+  );
+
+  // NetworkBloc
+  getIt.registerSingleton<NetworkBloc>(
+    NetworkBloc(getIt<NetworkRepository>()),
   );
 }
 

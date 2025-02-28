@@ -26,7 +26,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
   Future<void> _onRegisterUserEvent(
       RegisterUserEvent event, Emitter<RegisterState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isLoading: true, isRegistered: false));
 
     final newUser = await _createUserUsecase.call(
       CreateUserParams(
@@ -39,9 +39,9 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           role: "user"),
     );
     newUser.fold(
-      (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (l) => emit(state.copyWith(isLoading: false, isRegistered: false)),
       (r) {
-        emit(state.copyWith(isLoading: false, isSuccess: true));
+        emit(state.copyWith(isLoading: false, isRegistered: true));
         showMySnackBar(
             context: event.context, message: "Registration Successful");
       },
@@ -60,9 +60,10 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     );
 
     result.fold(
-      (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (l) => emit(state.copyWith(isLoading: false, isImageUploaded: false)),
       (r) {
-        emit(state.copyWith(isLoading: false, isSuccess: true, imageName: r));
+        emit(state.copyWith(
+            isLoading: false, isImageUploaded: true, imageName: r));
       },
     );
   }

@@ -16,6 +16,7 @@ class UserLocalDataSource implements IUserDataSource {
       // Convert UserEntity to UserHiveModel
       final userHiveModel = UserHiveModel.fromEntity(userEntity);
       await _hiveService.addUser(userHiveModel);
+      print("User saved locally!");
     } catch (e) {
       throw Exception(e);
     }

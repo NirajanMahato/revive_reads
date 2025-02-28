@@ -22,6 +22,7 @@ class UserRemoteDataSource implements IUserDataSource {
         data: userApiModel.toJson(),
       );
       if (response.statusCode == 201) {
+        print("User successfully registered!");
         return;
       } else {
         throw Exception(response.statusMessage);

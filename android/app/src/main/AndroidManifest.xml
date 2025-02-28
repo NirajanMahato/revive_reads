@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <application
+        android:enableOnBackInvokedCallback="true"
         android:label="revive_reads"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

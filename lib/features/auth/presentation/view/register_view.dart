@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:revive_reads/app/constants/color_constants.dart';
 import 'package:revive_reads/core/common/widgets/custom_elevated_button.dart';
 import 'package:revive_reads/core/common/widgets/custom_text_field.dart';
+import 'package:revive_reads/features/auth/presentation/view/login_view.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/signup/register_bloc.dart';
 
 class RegisterView extends StatefulWidget {
@@ -52,218 +53,242 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _registerViewFormKey,
-      child: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  // Profile Image Selector
-                  Center(
-                    child: Stack(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            showModalBottomSheet(
-                              backgroundColor: Colors.grey[300],
-                              context: context,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20),
-                                ),
-                              ),
-                              builder: (context) => Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: () {
-                                        checkCameraPermission();
-                                        _browseImage(ImageSource.camera);
-                                        Navigator.pop(context);
-                                      },
-                                      icon: const Icon(Icons.camera),
-                                      label: const Text('Camera'),
-                                    ),
-                                    ElevatedButton.icon(
-                                      onPressed: () {
-                                        _browseImage(ImageSource.gallery);
-                                        Navigator.pop(context);
-                                      },
-                                      icon: const Icon(Icons.image),
-                                      label: const Text('Gallery'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            height: 200,
-                            width: 200,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey[200],
-                            ),
-                            child: _img != null
-                                ? CircleAvatar(
-                                    backgroundImage: FileImage(_img!),
-                                    radius: 100,
-                                  )
-                                : const CircleAvatar(
-                                    radius: 100,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: 80,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            height: 50,
-                            width: 50,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blue,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 25,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Register',
-                    style: TextStyle(
-                      fontSize: 33.0,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Full name',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: kBlueGreyColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  CustomTextField(
-                    controller: _nameController,
-                    validator: ValidateLogin.fullNameValidate,
-                    keyboardType: TextInputType.name,
-                    hintText: 'Your Full Name',
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Email',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: kBlueGreyColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  CustomTextField(
-                    controller: _emailController,
-                    validator: ValidateLogin.emailValidate,
-                    keyboardType: TextInputType.emailAddress,
-                    hintText: 'Your Email',
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Password',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: kBlueGreyColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  CustomTextField(
-                    controller: _passwordController,
-                    validator: ValidateLogin.passwordValidate,
-                    keyboardType: TextInputType.visiblePassword,
-                    hintText: 'Your Password',
-                  ),
-                  const SizedBox(height: 50),
-                  CustomElevatedButton(
-                    text: "Sign Up",
-                    onPressed: () {
-                      if (_registerViewFormKey.currentState!.validate()) {
-                        if (_img == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select a profile picture'),
-                            ),
-                          );
-                          return;
-                        }
-                        final registerState =
-                            context.read<RegisterBloc>().state;
-                        final imageName = registerState.imageName;
-                        context.read<RegisterBloc>().add(
-                              RegisterUserEvent(
+    return BlocListener<RegisterBloc, RegisterState>(
+      listener: (context, state) {
+        if (state.isRegistered) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registration successful!")),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginView()),
+          );
+        }
+      },
+      child: Form(
+        key: _registerViewFormKey,
+        child: Scaffold(
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    // Profile Image Selector
+                    Center(
+                      child: Stack(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              showModalBottomSheet(
+                                backgroundColor: Colors.grey[300],
                                 context: context,
-                                fullName: _nameController.text.trim(),
-                                email: _emailController.text.trim(),
-                                password: _passwordController.text.trim(),
-                                avatar: imageName,
+                                isScrollControlled: true,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
+                                ),
+                                builder: (context) => Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          checkCameraPermission();
+                                          _browseImage(ImageSource.camera);
+                                          Navigator.pop(context);
+                                        },
+                                        icon: const Icon(Icons.camera),
+                                        label: const Text('Camera'),
+                                      ),
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          _browseImage(ImageSource.gallery);
+                                          Navigator.pop(context);
+                                        },
+                                        icon: const Icon(Icons.image),
+                                        label: const Text('Gallery'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              height: 200,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey[200],
                               ),
-                            );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please fill all the fields'),
+                              child: _img != null
+                                  ? CircleAvatar(
+                                      backgroundImage: FileImage(_img!),
+                                      radius: 100,
+                                    )
+                                  : const CircleAvatar(
+                                      radius: 100,
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 80,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                            ),
                           ),
-                        );
-                      }
-                    },
-                    width: double.infinity,
-                    textColor: Colors.white,
-                    verticalPadding: 18.0,
-                    fontSize: 18.0,
-                  ),
-                  const SizedBox(height: 30),
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Already have an account?",
-                      style: TextStyle(fontSize: 15.0, color: kGreyColor),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: InkWell(
-                      onTap: () {
-                        // Navigate to login
-                      },
-                      child: const Text(
-                        "Sign In",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Register',
+                      style: TextStyle(
+                        fontSize: 33.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Full name',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: kBlueGreyColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    CustomTextField(
+                      controller: _nameController,
+                      validator: ValidateLogin.fullNameValidate,
+                      keyboardType: TextInputType.name,
+                      hintText: 'Your Full Name',
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Email',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: kBlueGreyColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    CustomTextField(
+                      controller: _emailController,
+                      validator: ValidateLogin.emailValidate,
+                      keyboardType: TextInputType.emailAddress,
+                      hintText: 'Your Email',
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Password',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: kBlueGreyColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    CustomTextField(
+                      controller: _passwordController,
+                      validator: ValidateLogin.passwordValidate,
+                      keyboardType: TextInputType.visiblePassword,
+                      hintText: 'Your Password',
+                    ),
+                    const SizedBox(height: 50),
+                    BlocBuilder<RegisterBloc, RegisterState>(
+                      builder: (context, state) {
+                        return CustomElevatedButton(
+                          text: state.isLoading ? "Signing Up..." : "Sign Up",
+                          onPressed: state.isLoading
+                              ? () {}
+                              : () {
+                                  if (_registerViewFormKey.currentState!
+                                      .validate()) {
+                                    if (_img == null) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Please select a profile picture'),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    final registerState =
+                                        context.read<RegisterBloc>().state;
+                                    final imageName = registerState.imageName;
+                                    context.read<RegisterBloc>().add(
+                                          RegisterUserEvent(
+                                            context: context,
+                                            fullName:
+                                                _nameController.text.trim(),
+                                            email: _emailController.text.trim(),
+                                            password:
+                                                _passwordController.text.trim(),
+                                            avatar: imageName,
+                                          ),
+                                        );
+                                  }
+                                },
+                          width: double.infinity,
+                          textColor: Colors.white,
+                          verticalPadding: 18.0,
+                          fontSize: 18.0,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Already have an account?",
+                        style: TextStyle(fontSize: 15.0, color: kGreyColor),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const LoginView(), // Direct navigation
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Sign In",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
