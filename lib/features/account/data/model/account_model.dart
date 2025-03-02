@@ -33,12 +33,28 @@ class AccountModel {
       phone: json['phone'],
       address: json['address'],
       avatar: json['avatar'] ?? 'default_avatar.png',
-      bookListings: List<String>.from(json['book_listings'] ?? []),
-      favorites: List<String>.from(json['favorites'] ?? []),
+      bookListings: List<String>.from(json['book_listings']?.map((x) => x.toString()) ?? []),
+      favorites: List<String>.from(json['favorites']?.map((x) => x.toString()) ?? []),
       status: json['status'] ?? 'Offline',
-      createdAt:
-          DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'address': address,
+      'avatar': avatar,
+      'book_listings': bookListings,
+      'favorites': favorites,
+      'status': status,
+      'createdAt': createdAt.toIso8601String(),
+    };
   }
 
   AccountEntity toEntity() {

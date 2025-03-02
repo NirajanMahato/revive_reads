@@ -11,6 +11,7 @@ class ApiEndpoints {
   static const String getAllUsers = "user/get-all-users";
   static const String getUserById = "user/get-user-by-id";
   static const String deleteUser = "user/";
+  static const String updateProfile = "user/";
   static const String uploadImage = "user/uploadImage";
 
   static const String addToFavorites = "user/add-to-favorites";

@@ -12,6 +12,7 @@ import 'package:revive_reads/features/account/data/repositories/account_remote_r
 import 'package:revive_reads/features/account/domain/repository/account_repository.dart';
 import 'package:revive_reads/features/account/domain/use_case/get_account_usecase.dart';
 import 'package:revive_reads/features/account/domain/use_case/logout_usecase.dart';
+import 'package:revive_reads/features/account/domain/use_case/update_profile_usecase.dart';
 import 'package:revive_reads/features/account/presentation/view_model/account_bloc.dart';
 import 'package:revive_reads/features/auth/data/data_source/local_datasource/local_datasource.dart';
 import 'package:revive_reads/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
@@ -199,6 +200,10 @@ void _initAccountDependencies() {
     () => GetAccountUseCase(getIt<IAccountRepository>()),
   );
 
+  getIt.registerLazySingleton<UpdateProfileUseCase>(
+    () => UpdateProfileUseCase(getIt<IAccountRepository>()),
+  );
+
   // LogoutUseCase
   getIt.registerLazySingleton<LogoutUseCase>(
     () => LogoutUseCase(getIt<TokenSharedPrefs>()),
@@ -209,6 +214,7 @@ void _initAccountDependencies() {
     () => AccountBloc(
       getAccountUseCase: getIt<GetAccountUseCase>(),
       logoutUseCase: getIt<LogoutUseCase>(),
+      updateProfileUseCase: getIt<UpdateProfileUseCase>(),
     ),
   );
 }
