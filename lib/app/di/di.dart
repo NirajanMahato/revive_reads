@@ -23,6 +23,7 @@ import 'package:revive_reads/features/auth/domain/use_case/login_usecase.dart';
 import 'package:revive_reads/features/auth/domain/use_case/upload_image_usecase.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:revive_reads/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:revive_reads/features/dashboard/data/data_source/local_datasource/book_local_datasource.dart';
 import 'package:revive_reads/features/dashboard/data/data_source/remote_datasource/book_remote_datasource.dart';
 import 'package:revive_reads/features/dashboard/data/data_source/remote_datasource/favorite_remote_data_source.dart';
 import 'package:revive_reads/features/dashboard/data/repositories/book_remote_repository.dart';
@@ -290,13 +291,22 @@ Future<void> _initBookDependencies() async {
     () => BookRemoteDataSource(getIt<Dio>()),
   );
 
+  // Local Data Source
+  getIt.registerFactory<BookLocalDataSource>(
+    () => BookLocalDataSource(getIt<HiveService>()),
+  );
+
   getIt.registerFactory<FavoriteRemoteDataSource>(
     () => FavoriteRemoteDataSource(getIt<Dio>()),
   );
 
   // Repositories
   getIt.registerLazySingleton<BookRemoteRepository>(
-    () => BookRemoteRepository(getIt<BookRemoteDataSource>()),
+    () => BookRemoteRepository(
+      remoteDataSource: getIt<BookRemoteDataSource>(),
+      localDataSource: getIt<BookLocalDataSource>(),
+      networkConnectivity: getIt<NetworkConnectivity>(),
+    ),
   );
 
   getIt.registerLazySingleton<FavoriteRemoteRepository>(

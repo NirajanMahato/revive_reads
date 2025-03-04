@@ -15,16 +15,18 @@ class BookLoaded extends BookState {
   final List<BookEntity> allBooks;
   final String selectedGenre;
   final Set<String> favoriteBookIds;
+  final bool isOffline;
 
   BookLoaded({
     required this.books,
     required this.allBooks,
     required this.selectedGenre,
     this.favoriteBookIds = const {},
+    this.isOffline = false,
   });
 
   @override
-  List<Object?> get props => [books, allBooks, selectedGenre, favoriteBookIds];
+  List<Object?> get props => [books, allBooks, selectedGenre, favoriteBookIds, isOffline];
 }
 
 class BookError extends BookState {

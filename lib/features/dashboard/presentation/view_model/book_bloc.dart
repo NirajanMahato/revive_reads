@@ -9,13 +9,13 @@ class BookBloc extends Bloc<BookEvent, BookState> {
   final GetBooksUseCase getBooksUseCase;
   final AddToFavoritesUseCase addToFavoritesUseCase;
   final RemoveFromFavoritesUseCase removeFromFavoritesUseCase;
-  final TokenSharedPrefs tokenSharedPrefs; // Add this
+  final TokenSharedPrefs tokenSharedPrefs;
 
   BookBloc({
     required this.getBooksUseCase,
     required this.addToFavoritesUseCase,
     required this.removeFromFavoritesUseCase,
-    required this.tokenSharedPrefs, // Add this
+    required this.tokenSharedPrefs,
   }) : super(BookInitial()) {
     on<FetchBooksEvent>(_onFetchBooks);
     on<SearchBooksEvent>(_onSearchBooks);
@@ -33,6 +33,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
         books: books,
         allBooks: books,
         selectedGenre: 'All',
+        isOffline: false,
       )),
     );
   }
@@ -52,6 +53,8 @@ class BookBloc extends Bloc<BookEvent, BookState> {
         books: filteredBooks,
         allBooks: allBooks,
         selectedGenre: currentState.selectedGenre,
+        favoriteBookIds: currentState.favoriteBookIds,
+        isOffline: currentState.isOffline,
       ));
     } else {
       final result = await getBooksUseCase();
@@ -66,6 +69,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
             books: filteredBooks,
             allBooks: books,
             selectedGenre: 'All',
+            isOffline: false,
           ));
         },
       );
@@ -83,16 +87,19 @@ class BookBloc extends Bloc<BookEvent, BookState> {
           books: allBooks,
           allBooks: allBooks,
           selectedGenre: 'All',
+          favoriteBookIds: currentState.favoriteBookIds,
+          isOffline: currentState.isOffline,
         ));
       } else {
         final filteredBooks = allBooks
-            .where((book) =>
-                book.genre == event.genre) // Note: removed toLowerCase()
+            .where((book) => book.genre == event.genre)
             .toList();
         emit(BookLoaded(
           books: filteredBooks,
           allBooks: allBooks,
           selectedGenre: event.genre,
+          favoriteBookIds: currentState.favoriteBookIds,
+          isOffline: currentState.isOffline,
         ));
       }
     } else {
@@ -105,16 +112,18 @@ class BookBloc extends Bloc<BookEvent, BookState> {
               books: books,
               allBooks: books,
               selectedGenre: 'All',
+              isOffline: false,
             ));
           } else {
             final filteredBooks = books
-                .where((book) =>
+                .where((book) => 
                     book.genre.toLowerCase() == event.genre.toLowerCase())
                 .toList();
             emit(BookLoaded(
               books: filteredBooks,
               allBooks: books,
               selectedGenre: event.genre,
+              isOffline: false,
             ));
           }
         },
@@ -157,6 +166,7 @@ class BookBloc extends Bloc<BookEvent, BookState> {
                 allBooks: currentState.allBooks,
                 selectedGenre: currentState.selectedGenre,
                 favoriteBookIds: newFavorites,
+                isOffline: currentState.isOffline,
               ));
             },
           );

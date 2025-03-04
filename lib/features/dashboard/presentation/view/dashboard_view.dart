@@ -59,180 +59,223 @@ class _DashboardViewState extends State<DashboardView> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Logo & Notification Icon
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset(
-                      'assets/logo/Logo2.png',
-                      height: 40,
+        child: Column(
+          children: [
+            // Offline Indicator
+            BlocBuilder<BookBloc, BookState>(
+              builder: (context, state) {
+                if (state is BookLoaded && state.isOffline) {
+                  return Container(
+                    width: double.infinity,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                    color: Colors.amber[700],
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.wifi_off, color: Colors.white, size: 16),
+                        SizedBox(width: 8),
+                        Text(
+                          'You are offline. Showing cached data.',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const NotificationView()),
-                        );
-                      },
-                      icon: BlocBuilder<NotificationBloc, NotificationState>(
-                        builder: (context, state) {
-                          final hasUnread = state is NotificationLoaded &&
-                              state.notifications.any((n) => !n.isRead);
-                          return Stack(
-                            children: [
-                              const Icon(BoxIcons.bx_bell,
-                                  color: Colors.black, size: 30),
-                              if (hasUnread)
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 12,
-                                      minHeight: 12,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Search Bar
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: "What are you looking for?",
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Icon(
-                        BoxIcons.bx_search,
-                        color: Colors.grey,
-                        size: 28,
-                      ),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear, color: Colors.grey),
-                      onPressed: () {
-                        _searchController.clear();
-                        context.read<BookBloc>().add(FetchBooksEvent());
-                      },
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF0F1F5),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(35),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  onSubmitted: (query) {
-                    if (query.isNotEmpty) {
-                      context.read<BookBloc>().add(SearchBooksEvent(query));
-                    }
-                  },
-                ),
-                const SizedBox(height: 25),
-
-                // Categories Section
-                const Text(
-                  "Categories",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                // Add this inside the build method where categories are being built
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: BlocBuilder<BookBloc, BookState>(
-                    builder: (context, state) {
-                      String selectedGenre = 'All';
-                      if (state is BookLoaded) {
-                        selectedGenre = state.selectedGenre;
-                      }
-
-                      return Row(
-                        children: categories
-                            .map((category) => _buildCategoryItem(
-                                  context,
-                                  category.value,
-                                  category.label,
-                                  selectedGenre == category.value,
-                                ))
-                            .toList(),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Recent Listings Section
-                const Text(
-                  "Recent Listings",
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-
-                // Book Listings with One Book Per Row
-                BlocBuilder<BookBloc, BookState>(
-                  builder: (context, state) {
-                    if (state is BookLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is BookLoaded) {
-                      if (state.books.isEmpty) {
-                        return const Center(child: Text("No books found!"));
-                      }
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: state.books.length,
-                        itemBuilder: (context, index) {
-                          final book = state.books[index];
-                          return _buildBookCard(
-                            context: context,
-                            imageUrl: book.images.isNotEmpty
-                                ? 'http://10.0.2.2:5000/api/uploads/books/${book.images.first}'
-                                : '',
-                            title: book.title,
-                            description: book.description,
-                            price: book.price,
-                            condition: book.condition,
-                            postedDate: DateTime.now(),
-                            bookId: book.id,
-                            sellerId: book.sellerId,
-                            sellerName: book.sellerName,
-                            sellerAvatar: "default_avatar.png",
-                          );
-                        },
-                      );
-                    } else if (state is BookError) {
-                      return Center(child: Text("Error: ${state.message}"));
-                    }
-                    return const Center(
-                        child: Text("Start by searching a book!"));
-                  },
-                ),
-              ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
-          ),
+
+            // Content (Wrap your existing SingleChildScrollView in an Expanded)
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Logo & Notification Icon
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image.asset(
+                            'assets/logo/Logo2.png',
+                            height: 40,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotificationView()),
+                              );
+                            },
+                            icon: BlocBuilder<NotificationBloc,
+                                NotificationState>(
+                              builder: (context, state) {
+                                final hasUnread = state is NotificationLoaded &&
+                                    state.notifications.any((n) => !n.isRead);
+                                return Stack(
+                                  children: [
+                                    const Icon(BoxIcons.bx_bell,
+                                        color: Colors.black, size: 30),
+                                    if (hasUnread)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 12,
+                                            minHeight: 12,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Search Bar
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: "What are you looking for?",
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          prefixIcon: const Padding(
+                            padding: EdgeInsets.only(left: 8.0),
+                            child: Icon(
+                              BoxIcons.bx_search,
+                              color: Colors.grey,
+                              size: 28,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<BookBloc>().add(FetchBooksEvent());
+                            },
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF0F1F5),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 18, horizontal: 20),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(35),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onSubmitted: (query) {
+                          if (query.isNotEmpty) {
+                            context
+                                .read<BookBloc>()
+                                .add(SearchBooksEvent(query));
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 25),
+
+                      // Categories Section
+                      const Text(
+                        "Categories",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      // Add this inside the build method where categories are being built
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: BlocBuilder<BookBloc, BookState>(
+                          builder: (context, state) {
+                            String selectedGenre = 'All';
+                            if (state is BookLoaded) {
+                              selectedGenre = state.selectedGenre;
+                            }
+
+                            return Row(
+                              children: categories
+                                  .map((category) => _buildCategoryItem(
+                                        context,
+                                        category.value,
+                                        category.label,
+                                        selectedGenre == category.value,
+                                      ))
+                                  .toList(),
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Recent Listings Section
+                      const Text(
+                        "Recent Listings",
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Book Listings with One Book Per Row
+                      BlocBuilder<BookBloc, BookState>(
+                        builder: (context, state) {
+                          if (state is BookLoading) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (state is BookLoaded) {
+                            if (state.books.isEmpty) {
+                              return const Center(
+                                  child: Text("No books found!"));
+                            }
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: state.books.length,
+                              itemBuilder: (context, index) {
+                                final book = state.books[index];
+                                return _buildBookCard(
+                                  context: context,
+                                  imageUrl: book.images.isNotEmpty
+                                      ? 'http://10.0.2.2:5000/api/uploads/books/${book.images.first}'
+                                      : '',
+                                  title: book.title,
+                                  description: book.description,
+                                  price: book.price,
+                                  condition: book.condition,
+                                  postedDate: DateTime.now(),
+                                  bookId: book.id,
+                                  sellerId: book.sellerId,
+                                  sellerName: book.sellerName,
+                                  sellerAvatar: "default_avatar.png",
+                                );
+                              },
+                            );
+                          } else if (state is BookError) {
+                            return Center(
+                                child: Text("Error: ${state.message}"));
+                          }
+                          return const Center(
+                              child: Text("Start by searching a book!"));
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
