@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:revive_reads/app/constants/api_endpoints.dart';
@@ -19,10 +20,11 @@ class AccountRemoteDataSource implements IAccountDataSource {
           headers: {'Authorization': 'Bearer $token'},
         ),
       );
-      
+
       return AccountModel.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get account details');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to get account details');
     }
   }
 
@@ -37,18 +39,18 @@ class AccountRemoteDataSource implements IAccountDataSource {
   }) async {
     try {
       FormData formData = FormData();
-      
+
       // Add text fields
       formData.fields.add(MapEntry('name', name));
       formData.fields.add(MapEntry('phone', phone));
       formData.fields.add(MapEntry('address', address));
-      
+
       // Add file if exists
       if (avatar != null) {
         String fileName = avatar.path.split('/').last;
         String extension = fileName.split('.').last.toLowerCase();
         MediaType contentType;
-        
+
         if (extension == 'jpg' || extension == 'jpeg') {
           contentType = MediaType('image', 'jpeg');
         } else if (extension == 'png') {
@@ -56,7 +58,7 @@ class AccountRemoteDataSource implements IAccountDataSource {
         } else {
           contentType = MediaType('application', 'octet-stream');
         }
-        
+
         formData.files.add(MapEntry(
           'avatar',
           await MultipartFile.fromFile(
@@ -66,21 +68,23 @@ class AccountRemoteDataSource implements IAccountDataSource {
           ),
         ));
       }
-      
+
       final response = await dio.patch(
         ApiEndpoints.updateProfile,
         data: formData,
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
+            'id': userId,
             'Content-Type': 'multipart/form-data',
           },
         ),
       );
-      
+
       return AccountModel.fromJson(response.data['data']);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update profile');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update profile');
     }
   }
 }
