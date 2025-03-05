@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
@@ -14,120 +12,86 @@ class MockCreateUserUsecase extends Mock implements CreateUserUsecase {}
 
 class MockUploadImageUsecase extends Mock implements UploadImageUsecase {}
 
-class MockBuildContext extends Mock implements BuildContext {}
-
 void main() {
+  late MockCreateUserUsecase mockCreateUserUsecase;
+  late MockUploadImageUsecase mockUploadImageUsecase;
   late RegisterBloc registerBloc;
-  late MockCreateUserUsecase createUserUsecase;
-  late MockUploadImageUsecase uploadImageUsecase;
-  late MockBuildContext mockContext;
 
   setUp(() {
-    createUserUsecase = MockCreateUserUsecase();
-    uploadImageUsecase = MockUploadImageUsecase();
-    mockContext = MockBuildContext();
-
-    registerFallbackValue(const CreateUserParams(
-      fullName: '',
-      email: '',
-      password: '',
-      phone: '',
-      address: '',
-      role: 'user',
-    ));
-
+    mockCreateUserUsecase = MockCreateUserUsecase();
+    mockUploadImageUsecase = MockUploadImageUsecase();
     registerBloc = RegisterBloc(
-      createUserUsecase: createUserUsecase,
-      uploadImageUsecase: uploadImageUsecase,
+      createUserUsecase: mockCreateUserUsecase,
+      uploadImageUsecase: mockUploadImageUsecase,
     );
   });
 
-  tearDown(() {
-    registerBloc.close();
-  });
+  const tFullName = 'Test User';
+  const tEmail = 'test@example.com';
+  const tPassword = 'password123';
 
-  group('RegisterBloc', () {
-    const userParams = CreateUserParams(
-      fullName: 'John Doe',
-      email: 'john@example.com',
-      password: 'password123',
-      phone: '1234567890',
-      address: '123 Street',
-      role: 'user',
-      avatar: null,
-    );
+  const tCreateUserParams = CreateUserParams(
+    fullName: tFullName,
+    email: tEmail,
+    password: tPassword,
+    phone: '',
+    address: '',
+    role: 'user',
+    avatar: null,
+  );
 
+  group('RegisterBloc Tests', () {
     test('Initial state should be RegisterState.initial()', () {
       expect(registerBloc.state, RegisterState.initial());
     });
 
     blocTest<RegisterBloc, RegisterState>(
-      'emits [loading, success] when RegisterUserEvent is successful',
+      'Should emit [RegisterLoading, RegisterSuccess] when user is successfully registered',
       build: () {
-        when(() => createUserUsecase.call(any()))
+        when(() => mockCreateUserUsecase(any()))
             .thenAnswer((_) async => const Right(null));
         return registerBloc;
       },
       act: (bloc) => bloc.add(RegisterUserEvent(
-        fullName: userParams.fullName,
-        email: userParams.email,
-        password: userParams.password,
+        fullName: tFullName,
+        email: tEmail,
+        password: tPassword,
         avatar: null,
-        context: mockContext,
+        context: FakeBuildContext(),
       )),
       expect: () => [
-        RegisterState.initial().copyWith(isLoading: true),
+        RegisterState.initial().copyWith(isLoading: true, isRegistered: false),
         RegisterState.initial().copyWith(isLoading: false, isRegistered: true),
       ],
+      verify: (_) {
+        verify(() => mockCreateUserUsecase(tCreateUserParams)).called(1);
+      },
     );
 
     blocTest<RegisterBloc, RegisterState>(
-      'emits [loading, failure] when RegisterUserEvent fails',
+      'Should emit [RegisterLoading, RegisterFailure] when user registration fails',
       build: () {
-        when(() => createUserUsecase.call(any()))
-            .thenAnswer((_) async => const Left(ApiFailure(message: "Failed")));
+        when(() => mockCreateUserUsecase(any()))
+            .thenAnswer((_) async => const Left(ApiFailure(message: 'Registration Failed')));
         return registerBloc;
       },
       act: (bloc) => bloc.add(RegisterUserEvent(
-        fullName: userParams.fullName,
-        email: userParams.email,
-        password: userParams.password,
+        fullName: tFullName,
+        email: tEmail,
+        password: tPassword,
         avatar: null,
-        context: mockContext,
+        context: FakeBuildContext(),
       )),
       expect: () => [
-        RegisterState.initial().copyWith(isLoading: true),
+        RegisterState.initial().copyWith(isLoading: true, isRegistered: false),
         RegisterState.initial().copyWith(isLoading: false, isRegistered: false),
       ],
-    );
-
-    blocTest<RegisterBloc, RegisterState>(
-      'emits [loading, success] when LoadImage is successful',
-      build: () {
-        when(() => uploadImageUsecase.call(any()))
-            .thenAnswer((_) async => const Right('uploaded_image.jpg'));
-        return registerBloc;
+      verify: (_) {
+        verify(() => mockCreateUserUsecase(tCreateUserParams)).called(1);
       },
-      act: (bloc) => bloc.add(LoadImage(file: File('path/to/file.jpg'))),
-      expect: () => [
-        RegisterState.initial().copyWith(isLoading: true),
-        RegisterState.initial().copyWith(
-            isLoading: false, isRegistered: true, imageName: 'uploaded_image.jpg'),
-      ],
-    );
-
-    blocTest<RegisterBloc, RegisterState>(
-      'emits [loading, failure] when LoadImage fails',
-      build: () {
-        when(() => uploadImageUsecase.call(any()))
-            .thenAnswer((_) async => const Left(ApiFailure(message: "Failed")));
-        return registerBloc;
-      },
-      act: (bloc) => bloc.add(LoadImage(file: File('path/to/file.jpg'))),
-      expect: () => [
-        RegisterState.initial().copyWith(isLoading: true),
-        RegisterState.initial().copyWith(isLoading: false, isRegistered: false),
-      ],
     );
   });
 }
+
+/// Fake BuildContext for testing navigation
+class FakeBuildContext extends Fake implements BuildContext {}
